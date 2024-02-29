@@ -30,11 +30,45 @@ export default function App() {
     map.current.on('load', async () => {
       // Get the initial location of the shuttle.
       const geojson = await getLocation();
+
+      /*
       // Add the shuttle location as a source.
       map.current.addSource('shuttle', {
           type: 'geojson',
           data: geojson
-      });
+      }); */
+
+      // Load an image from an external URL.
+      map.current.loadImage(
+        'https://docs.mapbox.com/mapbox-gl-js/assets/cat.png',
+        (error, image) => {
+            if (error) throw error;
+
+            // Add the image to the map style.
+            map.current.addImage('shuttleImg', image);
+
+            // Add the shuttle location as a source.
+            map.current.addSource('shuttle', {
+              type: 'geojson',
+              data: geojson
+            });
+            map.current.addLayer({
+              'id': 'shuttle',
+              'type': 'symbol',
+              'source': 'shuttle',
+              'layout': {
+                  // This icon is a part of the Mapbox Streets style.
+                  // To view all images available in a Mapbox style, open
+                  // the style in Mapbox Studio and click the "Images" tab.
+                  // To add a new image to the style at runtime see
+                  // https://docs.mapbox.com/mapbox-gl-js/example/add-image/
+                  'icon-image': 'shuttleImg'
+              }
+          });
+        }
+      );
+
+    /*
       // Add the rocket symbol layer to the map.
       map.current.addLayer({
           'id': 'shuttle',
@@ -48,7 +82,7 @@ export default function App() {
               // https://docs.mapbox.com/mapbox-gl-js/example/add-image/
               'icon-image': 'rocket'
           }
-      });
+      });*/
 
       // Update the source from the API every 2 seconds.
       const updateSource = setInterval(async () => {
@@ -73,12 +107,14 @@ export default function App() {
               const latitude = shuttle1.vehicle.position.latitude
               const longitude = shuttle1.vehicle.position.longitude //works
 
+              //Take flyTo out since don't want to follow shuttles
               // Fly the map to the location.
-              /*map.flyTo({
+              map.current.flyTo({
                   center: [longitude, latitude],
                   speed: 0.5
-              }); */
-              // Return the location of the ISS as GeoJSON.
+              }); 
+
+              // Return the location of the shuttle as GeoJSON.
               return {
                   'type': 'FeatureCollection',
                   'features': [
