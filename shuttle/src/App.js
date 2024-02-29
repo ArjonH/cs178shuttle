@@ -117,7 +117,7 @@ export default function App() {
               // Return the location of the shuttle as GeoJSON.
               return {
                   'type': 'FeatureCollection',
-                  'features': [
+                  'features': [ //list of features, can add multiple marker geojsons here
                       {
                           'type': 'Feature',
                           'geometry': {
