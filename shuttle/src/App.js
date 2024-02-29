@@ -14,7 +14,8 @@ export default function App() {
     if (map.current) return; // initialize map only once
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/streets-v12',
+        style: 'mapbox://styles/mapbox/navigation-night-v1', //like 'mapbox://styles/mapbox/navigation-day-v1'
+        //this could also be good, very minimalistic but kinda hurts eyes mapbox://styles/mapbox/light-v11
         center: [lng, lat],
         zoom: zoom
       });
