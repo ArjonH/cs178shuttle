@@ -6,9 +6,9 @@ mapboxgl.accessToken = 'pk.eyJ1IjoicHJpbi1wIiwiYSI6ImNsdDZwZGFpZDBlM2syanA2dmhlb
 export default function App() {
   const mapContainer = useRef(null);
   const map = useRef(null);
-  const [lng, setLng] = useState(-70.9); //intial location map is zoomed in on
-  const [lat, setLat] = useState(42.35);
-  const [zoom, setZoom] = useState(9);
+  const [lng, setLng] = useState(-71.1); //intial location map is zoomed in on
+  const [lat, setLat] = useState(42.36);
+  const [zoom, setZoom] = useState(13);
 
   useEffect(() => {
     if (map.current) return; // initialize map only once
