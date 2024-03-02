@@ -33,8 +33,8 @@ export default function App() {
       // Get the initial location of the shuttle.
       const geojson = await getLocation();
       const routeCoordinates = await getRouteCoordinates();
-      //alert(shapesRaw)
-      // Route plotting
+
+      // Route plotting - different sources and layers for each route so it can be different colors
       map.current.addSource('route', {
         'type': 'geojson',
         'data': {
