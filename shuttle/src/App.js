@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import shapesRaw from './textFiles/shapesSecOnly.txt';  
-
+import * as Constants from './constants'
 
 mapboxgl.accessToken = 'pk.eyJ1IjoicHJpbi1wIiwiYSI6ImNsdDZwZGFpZDBlM2syanA2dmhlbnJwdTMifQ.bhuhjb9c4DrY7m8pOScJpw';
 
@@ -32,34 +32,86 @@ export default function App() {
     map.current.on('load', async () => {
       // Get the initial location of the shuttle.
       const geojson = await getLocation();
-      const routeCoordinates = await getRouteCoordinates();
+      //const routeCoordinates = await getRouteCoordinates();
 
       // Route plotting - different sources and layers for each route so it can be different colors
-      map.current.addSource('route', {
+      map.current.addSource('routeExpress', {
         'type': 'geojson',
         'data': {
             'type': 'Feature',
             'properties': {},
             'geometry': {
                 'type': 'LineString',
-                'coordinates': routeCoordinates['secExpress']
+                'coordinates': Constants.dictRoute['secExpress']
+            }
+        }
+      }); 
+
+      map.current.addSource('routeQuad', {
+        'type': 'geojson',
+        'data': {
+            'type': 'Feature',
+            'properties': {},
+            'geometry': {
+                'type': 'LineString',
+                'coordinates': Constants.dictRoute['quadSECDirect']
+            }
+        }
+      }); 
+
+      map.current.addSource('routeAllston', {
+        'type': 'geojson',
+        'data': {
+            'type': 'Feature',
+            'properties': {},
+            'geometry': {
+                'type': 'LineString',
+                'coordinates': Constants.dictRoute['allstonLoop']
             }
         }
       }); 
 
       map.current.addLayer({
-          'id': 'route',
+          'id': 'routeExpress',
           'type': 'line',
-          'source': 'route',
+          'source': 'routeExpress',
           'layout': {
               'line-join': 'round',
               'line-cap': 'round'
           },
           'paint': {
-              'line-color': '#203333',
-              'line-width': 15
+              'line-color': '#FFA23A',
+              'line-width': 6
           }
       });
+
+      map.current.addLayer({
+        'id': 'routeQuad',
+        'type': 'line',
+        'source': 'routeQuad',
+        'layout': {
+            'line-join': 'round',
+            'line-cap': 'round'
+        },
+        'paint': {
+            'line-color': '#8DD7BF',
+            'line-width': 4
+        }
+    });
+
+    map.current.addLayer({
+      'id': 'routeAllston',
+      'type': 'line',
+      'source': 'routeAllston',
+      'layout': {
+          'line-join': 'round',
+          'line-cap': 'round'
+      },
+      'paint': {
+          'line-color': '#FF60A8',
+          'line-width': 2
+      }
+  });
 
 
       // SHUTTLE PLOTTING
@@ -94,7 +146,7 @@ export default function App() {
                   // the style in Mapbox Studio and click the "Images" tab.
                   // To add a new image to the style at runtime see
                   // https://docs.mapbox.com/mapbox-gl-js/example/add-image/
-                  'icon-image': 'shuttleImg'
+                  'icon-image': 'rocket' //change to actual icon
               }
           });
         }
@@ -121,6 +173,8 @@ export default function App() {
         //Key of object is the route name, value is the array of coordinates
         // Coordinates format [lat, long]
 
+
+        
         var dict = {
           'allstonLoop': [],
           'quadSECDirect': [],
