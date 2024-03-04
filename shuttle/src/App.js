@@ -523,8 +523,8 @@ export default function App() {
                 var tripId = shuttle.vehicle.trip.trip_id
                 //alert(tripId)
 
-                if (tripId === "670551" || tripId === "661305") {
-                    var coord = [shuttle.vehicle.position.latitude, shuttle.vehicle.position.longitude] //works
+                if (tripId === "670394" || tripId === "670553") {
+                    var coord = [shuttle.vehicle.position.longitude, shuttle.vehicle.position.latitude] //works
                    //coordinates.push(coord)
                     /*var featureObj = {
                           'type': 'Feature',
@@ -533,9 +533,7 @@ export default function App() {
                               'coordinates': coord
                           }
                       }*/
-                    //alert(featureObj)
 
-                    //featuresList.push(featureObj)
                     featuresList.push(
                         {
                           'type': 'Feature',
@@ -547,26 +545,6 @@ export default function App() {
                     )
                 }
               }
-              
-              return {
-                'type': 'FeatureCollection',
-                'features': [
-                    {
-                        'type': 'Feature',
-                        'geometry': {
-                            'type': 'Point',
-                            'coordinates': [-71.119075,42.364114]
-                        }
-                    },
-                    {
-                        'type': 'Feature',
-                        'geometry': {
-                            'type': 'Point',
-                            'coordinates': [-71.127741708,42.363958424]
-                        }
-                    },
-                ]
-            }
 
               // Return the location of the shuttle as GeoJSON.
               return {
