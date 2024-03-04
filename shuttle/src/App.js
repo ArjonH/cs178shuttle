@@ -434,9 +434,9 @@ export default function App() {
 
             // Add the shuttle location as a source.
             map.current.addSource('shuttle', {
-              type: 'geojson',
-              data: geojson
-            });
+                'type': 'geojson',
+                'data': geojson });
+
             map.current.addLayer({
               'id': 'shuttle',
               'type': 'symbol',
@@ -487,21 +487,48 @@ export default function App() {
 
               //For loop for each entity (i.e. shuttle)
               const shuttle1 = entity[0] //only get info on first shuttle for now
-              const latitude = shuttle1.vehicle.position.latitude
-              const longitude = shuttle1.vehicle.position.longitude //works
+              //var coordinates = []
+              var featuresList = []
 
-              // Return the location of the shuttle as GeoJSON.
-              return {
-                  'type': 'FeatureCollection',
-                  'features': [ //list of features, can add multiple marker geojsons here
-                      {
+              //For loop for each entity (i.e. shuttle) and filters to just our routes. 
+              // For loop gets all longitude and latitude position of each shuttle
+              for (let x in entity) { //key is shuttle THINK THIS FOR LOOP DOESN"T WORK
+                //alert(entity)
+                //Check if shuttle is in desired route
+                var shuttle = entity[x]
+                //alert(shuttle)
+                //alert(shuttle.vehicle)
+                var tripId = shuttle.vehicle.trip.trip_id
+                //alert(tripId)
+
+                if (tripId === "670551" || tripId === "661305") {
+                    var coord = [shuttle.vehicle.position.latitude, shuttle.vehicle.position.longitude] //works
+                   //coordinates.push(coord)
+                    /*var featureObj = {
                           'type': 'Feature',
                           'geometry': {
                               'type': 'Point',
-                              'coordinates': [longitude, latitude]
+                              'coordinates': coord
+                          }
+                      }*/
+                    //alert(featureObj)
+
+                    //featuresList.push(featureObj)
+                    featuresList.push(
+                        {
+                          'type': 'Feature',
+                          'geometry': {
+                              'type': 'Point',
+                              'coordinates': coord
                           }
                       }
-                  ]
+                    )
+                }
+              }
+              // Return the location of the shuttle as GeoJSON.
+              return {
+                  'type': 'FeatureCollection',
+                  'features': featuresList //list of features, can add multiple marker geojsons here
               };
           } catch (err) {
               // If the updateSource interval is defined, clear the interval to stop updating the source.
