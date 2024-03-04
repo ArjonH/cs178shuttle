@@ -497,6 +497,9 @@ export default function App() {
                     featuresList.push(
                         {
                           'type': 'Feature',
+                          'properties' : {
+                            'id':tripId //added trip id so will be able to filter features and color the shuttle we're recommending
+                          },
                           'geometry': {
                               'type': 'Point',
                               'coordinates': coord
