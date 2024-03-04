@@ -413,32 +413,6 @@ export default function App() {
     }
   });
 
-  /* FOR TESTING ONLY
-  map.current.addSource('stopsAllston', {
-    'type': 'geojson',
-    'data': {
-        'type': 'FeatureCollection',
-        'features': [
-            {
-                'type': 'Feature',
-                'geometry': {
-                    'type': 'Point',
-                    'coordinates': [-71.119075,42.364114]
-                }
-            },
-            {
-                'type': 'Feature',
-                'geometry': {
-                    'type': 'Point',
-                    'coordinates': [-71.127741708,42.363958424]
-                }
-            },
-        ]
-    }
-  }); */
-
-
-
       // SHUTTLE PLOTTING
       /*
       // Add the shuttle location as a source.
@@ -508,31 +482,17 @@ export default function App() {
               );
               const obj =  await response.json();
               const entity = obj.entity
-
-              //var coordinates = []
               var featuresList = []
 
               //For loop for each entity (i.e. shuttle) and filters to just our routes. 
               // For loop gets all longitude and latitude position of each shuttle
-              for (let x in entity) { //key is shuttle THINK THIS FOR LOOP DOESN"T WORK
-                //alert(entity)
-                //Check if shuttle is in desired route
+              for (let x in entity) { 
                 var shuttle = entity[x]
-                //alert(shuttle)
-                //alert(shuttle.vehicle)
                 var tripId = shuttle.vehicle.trip.trip_id
-                //alert(tripId)
 
-                if (tripId === "670394" || tripId === "670553") {
-                    var coord = [shuttle.vehicle.position.longitude, shuttle.vehicle.position.latitude] //works
-                   //coordinates.push(coord)
-                    /*var featureObj = {
-                          'type': 'Feature',
-                          'geometry': {
-                              'type': 'Point',
-                              'coordinates': coord
-                          }
-                      }*/
+                //Check if shuttle is in desired route
+                if (tripId === "670394" || tripId === "670553") { //NEED TO CHANGE TO ACTUAL TRIP IDs
+                    var coord = [shuttle.vehicle.position.longitude, shuttle.vehicle.position.latitude] 
 
                     featuresList.push(
                         {
@@ -545,7 +505,6 @@ export default function App() {
                     )
                 }
               }
-
               // Return the location of the shuttle as GeoJSON.
               return {
                   'type': 'FeatureCollection',
