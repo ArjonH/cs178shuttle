@@ -469,52 +469,6 @@ export default function App() {
           }
       });*/
 
-      async function getRouteCoordinates(){
-        //Returns point coordinates for a route shape as an object of an array of coordinates
-        //Key of object is the route name, value is the array of coordinates
-        // Coordinates format [lat, long]
-
-
-        
-        var dict = {
-          'allstonLoop': [],
-          'quadSECDirect': [],
-          'secExpress': []
-        }
-        
-        // Load coordinates from shapes text file
-        
-
-
-        //hard coded for now
-        return { 
-          'secExpress':
-            [
-              [-122.483696, 37.833818],
-              [-122.483482, 37.833174],
-              [-122.483396, 37.8327],
-              [-122.483568, 37.832056],
-              [-122.48404, 37.831141],
-              [-122.48404, 37.830497],
-              [-122.483482, 37.82992],
-              [-122.483568, 37.829548],
-              [-122.48507, 37.829446],
-              [-122.4861, 37.828802],
-              [-122.486958, 37.82931],
-              [-122.487001, 37.830802],
-              [-122.487516, 37.831683],
-              [-122.488031, 37.832158],
-              [-122.488889, 37.832971],
-              [-122.489876, 37.832632],
-              [-122.490434, 37.832937],
-              [-122.49125, 37.832429],
-              [-122.491636, 37.832564],
-              [-122.492237, 37.833378],
-              [-122.493782, 37.833683]
-            ]
-        };
-      }
-
       // Update the source from the API every 2 seconds.
       const updateSource = setInterval(async () => {
           const geojson = await getLocation(updateSource);
@@ -528,13 +482,11 @@ export default function App() {
                   'https://passio3.com/harvard/passioTransit/gtfs/realtime/vehiclePositions.json',
                   { method: 'GET' }
               );
-              //alert(await response.json())
               const obj =  await response.json();
-              //alert(JSON.stringify(obj))
               const entity = obj.entity
-              //alert(entity)
+
+              //For loop for each entity (i.e. shuttle)
               const shuttle1 = entity[0] //only get info on first shuttle for now
-              //alert(JSON.stringify(shuttle1))
               const latitude = shuttle1.vehicle.position.latitude
               const longitude = shuttle1.vehicle.position.longitude //works
 
