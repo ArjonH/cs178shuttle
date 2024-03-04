@@ -413,6 +413,30 @@ export default function App() {
     }
   });
 
+  /* FOR TESTING ONLY
+  map.current.addSource('stopsAllston', {
+    'type': 'geojson',
+    'data': {
+        'type': 'FeatureCollection',
+        'features': [
+            {
+                'type': 'Feature',
+                'geometry': {
+                    'type': 'Point',
+                    'coordinates': [-71.119075,42.364114]
+                }
+            },
+            {
+                'type': 'Feature',
+                'geometry': {
+                    'type': 'Point',
+                    'coordinates': [-71.127741708,42.363958424]
+                }
+            },
+        ]
+    }
+  }); */
+
 
 
       // SHUTTLE PLOTTING
@@ -447,7 +471,7 @@ export default function App() {
                   // the style in Mapbox Studio and click the "Images" tab.
                   // To add a new image to the style at runtime see
                   // https://docs.mapbox.com/mapbox-gl-js/example/add-image/
-                  'icon-image': 'rocket' //change to actual icon
+                  'icon-image': 'shuttleImg' //change to actual icon
               }
           });
         }
@@ -485,8 +509,6 @@ export default function App() {
               const obj =  await response.json();
               const entity = obj.entity
 
-              //For loop for each entity (i.e. shuttle)
-              const shuttle1 = entity[0] //only get info on first shuttle for now
               //var coordinates = []
               var featuresList = []
 
@@ -525,6 +547,27 @@ export default function App() {
                     )
                 }
               }
+              
+              return {
+                'type': 'FeatureCollection',
+                'features': [
+                    {
+                        'type': 'Feature',
+                        'geometry': {
+                            'type': 'Point',
+                            'coordinates': [-71.119075,42.364114]
+                        }
+                    },
+                    {
+                        'type': 'Feature',
+                        'geometry': {
+                            'type': 'Point',
+                            'coordinates': [-71.127741708,42.363958424]
+                        }
+                    },
+                ]
+            }
+
               // Return the location of the shuttle as GeoJSON.
               return {
                   'type': 'FeatureCollection',
