@@ -413,14 +413,6 @@ export default function App() {
     }
   });
 
-      // SHUTTLE PLOTTING
-      /*
-      // Add the shuttle location as a source.
-      map.current.addSource('shuttle', {
-          type: 'geojson',
-          data: geojson
-      }); */
-
       // Load an image from an external URL.
       map.current.loadImage(
         'https://docs.mapbox.com/mapbox-gl-js/assets/cat.png',
@@ -435,37 +427,49 @@ export default function App() {
                 'type': 'geojson',
                 'data': geojson });
 
+            //Shows shuttles that are live but we don't recommend
             map.current.addLayer({
               'id': 'shuttle',
-              'type': 'symbol',
+              'type': 'circle',
+              //'type': 'symbol',
               'source': 'shuttle',
-              'layout': {
+              'paint': {
+                    'circle-radius': 8,
+                    'circle-color': '#FFFFFF'
+                },
+                'filter': ['!=', 'id', "670358"] //HARDCODED //Filter to only show particular features
+              //'layout': {
                   // This icon is a part of the Mapbox Streets style.
                   // To view all images available in a Mapbox style, open
                   // the style in Mapbox Studio and click the "Images" tab.
                   // To add a new image to the style at runtime see
                   // https://docs.mapbox.com/mapbox-gl-js/example/add-image/
-                  'icon-image': 'shuttleImg' //change to actual icon
-              }
+                  //'icon-image': 'shuttleImg' //change to actual icon
+              //}
           });
+
+          // Shows shuttle that we recommend user taking
+            map.current.addLayer({
+                'id': 'shuttleHighlighted',
+                'type': 'circle',
+                //'type': 'symbol',
+                'source': 'shuttle',
+                'paint': {
+                    'circle-radius': 8,
+                    'circle-color': '#F32FFF'
+                },
+                'filter': ['==', 'id', "670358"] //HARDCODED CHANGE ID VAL To an updated state val
+                //'layout': {
+                    // This icon is a part of the Mapbox Streets style.
+                    // To view all images available in a Mapbox style, open
+                    // the style in Mapbox Studio and click the "Images" tab.
+                    // To add a new image to the style at runtime see
+                    // https://docs.mapbox.com/mapbox-gl-js/example/add-image/
+                    //'icon-image': 'shuttleImg' //change to actual icon
+                //}
+            });
         }
       );
-
-    /*
-      // Add the rocket symbol layer to the map.
-      map.current.addLayer({
-          'id': 'shuttle',
-          'type': 'symbol',
-          'source': 'shuttle',
-          'layout': {
-              // This icon is a part of the Mapbox Streets style.
-              // To view all images available in a Mapbox style, open
-              // the style in Mapbox Studio and click the "Images" tab.
-              // To add a new image to the style at runtime see
-              // https://docs.mapbox.com/mapbox-gl-js/example/add-image/
-              'icon-image': 'rocket'
-          }
-      });*/
 
       // Update the source from the API every 2 seconds.
       const updateSource = setInterval(async () => {
@@ -491,7 +495,7 @@ export default function App() {
                 var tripId = shuttle.vehicle.trip.trip_id
 
                 //Check if shuttle is in desired route
-                if (tripId === "670394" || tripId === "670553") { //NEED TO CHANGE TO ACTUAL TRIP IDs
+                if (tripId === "670358") { // HARDCODED NEED TO CHANGE TO ACTUAL TRIP IDs
                     var coord = [shuttle.vehicle.position.longitude, shuttle.vehicle.position.latitude] 
 
                     featuresList.push(
