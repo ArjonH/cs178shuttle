@@ -1088,6 +1088,255 @@ export const dictRoute = {
     ]
 }
 
+export const dictStops = {
+    'allstonLoop': [
+        {
+            'type': 'Feature',
+            'geometry': {
+                'type': 'Point',
+                'coordinates': [-71.119075,42.364114]
+            }
+        },
+        {
+            'type': 'Feature',
+            'geometry': {
+                'type': 'Point',
+                'coordinates': [-71.127741708,42.363958424]
+            }
+        },
+        {
+            'type': 'Feature',
+            'geometry': {
+                'type': 'Point',
+                'coordinates': [-71.119965,42.372722]
+            }
+        },
+        {
+          'type': 'Feature',
+          'geometry': {
+              'type': 'Point',
+              'coordinates': [-71.120985,42.371524]
+          }
+      },
+      {
+          'type': 'Feature',
+          'geometry': {
+              'type': 'Point',
+              'coordinates': [-71.124887448,42.367121429]
+          }
+      },
+      {
+          'type': 'Feature',
+          'geometry': {
+              'type': 'Point',
+              'coordinates': [-71.114510008,42.374634042]
+          }
+      },
+      {
+        'type': 'Feature',
+        'geometry': {
+            'type': 'Point',
+            'coordinates': [-71.115008,42.37288]
+        }
+    },
+    {
+        'type': 'Feature',
+        'geometry': {
+            'type': 'Point',
+            'coordinates': [-71.116713434,42.370083645]
+        }
+    },
+    {
+        'type': 'Feature',
+        'geometry': {
+            'type': 'Point',
+            'coordinates': [-71.125392617,42.363328644]
+        }
+    }
+    ],
+    'quadSECDirect': [
+        {
+            'type': 'Feature',
+            'geometry': {
+                'type': 'Point',
+                'coordinates': [-71.127741708,42.363958424]
+            }
+        },
+        {
+            'type': 'Feature',
+            'geometry': {
+                'type': 'Point',
+                'coordinates': [-71.119965,42.372722]
+            }
+        },
+        {
+          'type': 'Feature',
+          'geometry': {
+              'type': 'Point',
+              'coordinates': [-71.120985,42.371524]
+          }
+      },
+      {
+          'type': 'Feature',
+          'geometry': {
+              'type': 'Point',
+              'coordinates': [-71.124887448,42.367121429]
+          }
+      },
+    {
+        'type': 'Feature',
+        'geometry': {
+            'type': 'Point',
+            'coordinates': [-71.125392617,42.363328644]
+        }
+    },
+    {
+      'type': 'Feature',
+      'geometry': {
+          'type': 'Point',
+          'coordinates': [-71.119937392,42.377977084]
+      }
+      },
+      {
+          'type': 'Feature',
+          'geometry': {
+              'type': 'Point',
+              'coordinates': [-71.125325,42.381867]
+          }
+      },
+      {
+        'type': 'Feature',
+        'geometry': {
+            'type': 'Point',
+            'coordinates': [-71.12212,42.3765]
+        }
+      },
+      {
+          'type': 'Feature',
+          'geometry': {
+              'type': 'Point',
+              'coordinates': [-71.119467061,42.375187466]
+          }
+      },
+      {
+          'type': 'Feature',
+          'geometry': {
+              'type': 'Point',
+              'coordinates': [-71.119734232,42.373378883]
+          }
+      },
+    {
+        'type': 'Feature',
+        'geometry': {
+            'type': 'Point',
+            'coordinates': [-71.121339,42.371203]
+        }
+    },
+    {
+      'type': 'Feature',
+      'geometry': {
+          'type': 'Point',
+          'coordinates': [-71.125015193,42.367024629]
+      }
+    },
+    {
+        'type': 'Feature',
+        'geometry': {
+            'type': 'Point',
+            'coordinates': [-71.127861727,42.363936034]
+        }
+    }
+    ],
+    'secExpress': [
+        {
+            'type': 'Feature',
+            'geometry': {
+                'type': 'Point',
+                'coordinates': [-71.119075,42.364114]
+            }
+        },
+        {
+            'type': 'Feature',
+            'geometry': {
+                'type': 'Point',
+                'coordinates': [-71.127741708,42.363958424]
+            }
+        },
+        {
+            'type': 'Feature',
+            'geometry': {
+                'type': 'Point',
+                'coordinates': [-71.119965,42.372722]
+            }
+        },
+        {
+          'type': 'Feature',
+          'geometry': {
+              'type': 'Point',
+              'coordinates': [-71.120985,42.371524]
+          }
+      },
+      {
+          'type': 'Feature',
+          'geometry': {
+              'type': 'Point',
+              'coordinates': [-71.124887448,42.367121429]
+          }
+      },
+      {
+        'type': 'Feature',
+        'geometry': {
+            'type': 'Point',
+            'coordinates': [-71.115008,42.37288]
+        }
+    },
+    {
+        'type': 'Feature',
+        'geometry': {
+            'type': 'Point',
+            'coordinates': [-71.116713434,42.370083645]
+        }
+    },
+    {
+        'type': 'Feature',
+        'geometry': {
+            'type': 'Point',
+            'coordinates': [-71.125392617,42.363328644]
+        }
+    },
+
+
+        {
+            'type': 'Feature',
+            'geometry': {
+                'type': 'Point',
+                'coordinates': [-71.119937392,42.377977084]
+            }
+        },
+        {
+            'type': 'Feature',
+            'geometry': {
+                'type': 'Point',
+                'coordinates': [-71.11663,42.378933]
+            }
+        },
+        {
+            'type': 'Feature',
+            'geometry': {
+                'type': 'Point',
+                'coordinates': [-71.115974486,42.376901687]
+            }
+        },
+        {
+            'type': 'Feature',
+            'geometry': {
+                'type': 'Point',
+                'coordinates': [-71.114392997,42.37645186]
+            }
+        },
+    ]
+}
+
 export const dictRoute2 = {
     'test': [
         [-122.483696, 37.833818],
