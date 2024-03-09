@@ -529,7 +529,7 @@ export default function App() {
 
       //Traffic (for uncertainty) functions
       // Inputs: startStop coordinate (format [long,lat]), endStop coordinate, route (name, String)
-        function updateRoute(startStop, endStop, route) {
+        function updateRoute(startStop, endStop, route) { //Make button to test this
 
             // Set the profile
             const profile = 'driving-traffic'; //times informed by traffic data
