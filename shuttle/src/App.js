@@ -605,12 +605,11 @@ export default function App() {
         }
 
         // Make a Map Matching request
-        async function getMatch(coordinates, radius, profile) {
-            // Separate the radiuses with semicolons
-            const radiuses = radius.join(';');
+        async function getMatch(coordinates, radiuses, profile) {
+            
             // Create the query
             const query = await fetch(
-            `https://api.mapbox.com/matching/v5/mapbox/${profile}/${coordinates}?geometries=geojson&radiuses=${radiuses}&steps=true&access_token=${mapboxgl.accessToken}`,
+            `https://api.mapbox.com/matching/v5/mapbox/${profile}/${coordinates}?geometries=geojson&radiuses=${radiuses}&steps=false&access_token=${mapboxgl.accessToken}`,
             { method: 'GET' }
             );
             const response = await query.json();
@@ -624,7 +623,16 @@ export default function App() {
             // Get the coordinates from the response
             const coords = response.matchings[0].geometry;
             console.log(coords);
-            // Code from the next step will go here
+            
+            //Get trip duration
+            var data = response.matchings[0]
+            // Target the sidebar to add the instructions
+            const directions = document.getElementById('directions');
+            //Show trip duration
+            var tripDuration = Math.floor(data.duration / 60);
+            directions.innerHTML = `<p><strong>Trip duration: ${Math.floor(
+                data.duration / 60
+              )} min.</strong></p>`;
         }
 
     });
