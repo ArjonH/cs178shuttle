@@ -8,9 +8,9 @@ mapboxgl.accessToken = 'pk.eyJ1IjoicHJpbi1wIiwiYSI6ImNsdDZwZGFpZDBlM2syanA2dmhlb
 export default function App() {
   const mapContainer = useRef(null);
   const map = useRef(null);
-  const [lng, setLng] = useState(-71.1); //intial location map is zoomed in on
-  const [lat, setLat] = useState(42.36);
-  const [zoom, setZoom] = useState(13);
+  const [lng, setLng] = useState(-71.1274); //intial location map is zoomed in on
+  const [lat, setLat] = useState(42.3725);
+  const [zoom, setZoom] = useState(13.95);
 
   useEffect(() => {
     if (map.current) return; // initialize map only once
@@ -535,6 +535,15 @@ export default function App() {
 
       {/* Displays map */}
       <div ref={mapContainer} className="map-container" />
+
+      {/* Sidebar for info */}
+      <div class="info-box">
+        <p>
+            Draw your route using the draw tools on the right. To get the most
+            accurate route match, draw points at regular intervals.
+        </p>
+        <div id="directions"></div>
+      </div>
     </div>
   );
   
