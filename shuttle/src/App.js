@@ -12,6 +12,9 @@ export default function App() {
   const [lat, setLat] = useState(42.3725);
   const [zoom, setZoom] = useState(13.95);
 
+  //For traffic data (uncertainty)
+  const [trafficConditions, setTraffic] = useState(null)
+
   useEffect(() => {
     if (map.current) return; // initialize map only once
       map.current = new mapboxgl.Map({
@@ -523,8 +526,109 @@ export default function App() {
               throw new Error(err);
           }
       }
+
+      //Traffic (for uncertainty) functions
+      // Inputs: startStop coordinate (format [long,lat]), endStop coordinate, route (name, String)
+        function updateRoute(startStop, endStop, route) {
+
+            // Set the profile
+            const profile = 'driving-traffic'; //times informed by traffic data
+            
+            // Get the coordinates of the route using the inputs
+            const routeCoordinates = Constants.dictRoute[route]; // all coordinates of a route
+            const startStopIndex = routeCoordinates.indexOf(startStop) // index of the start coord in the array
+            const endStopIndex = routeCoordinates.indexOf(endStop) // index of the end coord in the array
+            var numCoordinates = endStopIndex - startStopIndex; // num of coords between start and stop coord
+            const totalCoords = routeCoordinates.length
+            if (numCoordinates < 0) {
+                numCoordinates = (totalCoords - startStopIndex) + (endStopIndex + 1)
+            }
+
+            var newCoords = '' //List of coords
+            var curIndex = startStopIndex
+            var curCoord;
+            var count = numCoordinates // number of coordinates added to list for API call
+            var skipCoords = 1
+            if (count > 100){ //100 is the max number of coords allowed in API call
+                count = 100 // number of coordinates added to list
+                //skipCoords is the number of coords we'll skip (i.e. not include in the API call)
+                skipCoords = Math.ceil(numCoordinates / 100); //TEST if about correct number
+            }
+
+            // Looping through to get coordinates for API call and formatting them
+            var radius = '' //For API call, same number of radii as coordinates
+            
+            for (let i = 0; i < count; i++) {
+                curCoord = routeCoordinates[curCoord]
+                newCoords = newCoords + curCoord[0].toString() + ',' + curCoord[1].toString() + ';'
+                curIndex = curIndex + skipCoords
+                if (curIndex >=totalCoords){
+                    curIndex = 0
+                }
+
+                // Set the radius for each coordinate pair to 10 meters
+                radius = radius + '10;'
+            }        
+            
+            getMatch(newCoords, radius, profile); //Calls function to call API
+
+            /*
+            var newCoords = '' //List of coords
+            var curIndex = startStopIndex
+            var curCoord;
+            if (numCoordinates > 100){ //100 is the max number of coords allowed in API call
+                //skipCoords is the number of coords we'll skip (not include in the API call)
+                var skipCoords = Math.ceil(numCoordinates / 100); //TEST if about correct number
+
+                // Looping through to get coordinates for API call
+                for (let i = 0; i < 100; i++) {
+                    curCoord = routeCoordinates[curCoord]
+                    newCoords = newCoords + curCoord[0].toString() + ',' + curCoord[1].toString() + ';'
+                    curIndex = curIndex + skipCoords
+                    if (curIndex >=totalCoords){
+                        curIndex = 0
+                    }
+                }
+            } else {
+                // Looping through to get coordinates for API call and formatting them
+                for (let i = 0; i < numCoordinates; i++) {
+                    curCoord = routeCoordinates[curCoord]
+                    newCoords = newCoords + curCoord[0].toString() + ',' + curCoord[1].toString() + ';'
+                    curIndex +=1
+                    if (curIndex >=totalCoords){
+                        curIndex = 0
+                    }
+                }
+            }
+            */
+            
+        }
+
+        // Make a Map Matching request
+        async function getMatch(coordinates, radius, profile) {
+            // Separate the radiuses with semicolons
+            const radiuses = radius.join(';');
+            // Create the query
+            const query = await fetch(
+            `https://api.mapbox.com/matching/v5/mapbox/${profile}/${coordinates}?geometries=geojson&radiuses=${radiuses}&steps=true&access_token=${mapboxgl.accessToken}`,
+            { method: 'GET' }
+            );
+            const response = await query.json();
+            // Handle errors
+            if (response.code !== 'Ok') {
+            alert(
+                `${response.code} - ${response.message}.\n\nFor more information: https://docs.mapbox.com/api/navigation/map-matching/#map-matching-api-errors`
+            );
+            return;
+            }
+            // Get the coordinates from the response
+            const coords = response.matchings[0].geometry;
+            console.log(coords);
+            // Code from the next step will go here
+        }
+
     });
-  });
+});
 
   return (
     <div>
