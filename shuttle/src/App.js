@@ -290,7 +290,7 @@ export default function App() {
   });
 
   //Traffic (for uncertainty) functions
-  // Inputs: startStop coordinate (format [long,lat]), endStop coordinate, route (name, String)
+  // Inputs: startStop coordinate (format "long,lat"), endStop coordinate, route (name, String)
   function updateRoute(startStop, endStop, route) {
     //Make button to test this
 
@@ -298,13 +298,9 @@ export default function App() {
     const profile = "driving-traffic"; //times informed by traffic data
 
     // Get the coordinates of the route using the inputs
-    const routeCoordinates = Constants.dictRoute[route]; // all coordinates of a route
-    alert(routeCoordinates)
+    const routeCoordinates = Constants.dictRouteString[route]; // all coordinates of a route
     const startStopIndex = routeCoordinates.indexOf(startStop); // index of the start coord in the array
     const endStopIndex = routeCoordinates.indexOf(endStop); // index of the end coord in the array
-
-    alert(startStopIndex)
-    alert(endStopIndex)
     var numCoordinates = endStopIndex - startStopIndex; // num of coords between start and stop coord
     const totalCoords = routeCoordinates.length;
     if (numCoordinates < 0) {
@@ -326,18 +322,29 @@ export default function App() {
     // Looping through to get coordinates for API call and formatting them
     var radius = ""; //For API call, same number of radii as coordinates
 
-    alert(count)
+    //alert(count)
     for (let i = 0; i < count; i++) {
-      curCoord = routeCoordinates[curCoord];
-      newCoords =
-        newCoords + curCoord[0].toString() + "," + curCoord[1].toString() + ";";
+      curCoord = routeCoordinates[curIndex];
+      if (i === count-1){
+        newCoords =
+          newCoords + curCoord;
+
+        // Set the radius for each coordinate pair to 10 meters
+        radius = radius + "10";
+      } else {
+        newCoords =
+          newCoords + curCoord + ";";
+        
+          // Set the radius for each coordinate pair to 10 meters
+        radius = radius + "10;";
+      } 
+      
       curIndex = curIndex + skipCoords;
       if (curIndex >= totalCoords) {
         curIndex = 0;
       }
 
-      // Set the radius for each coordinate pair to 10 meters
-      radius = radius + "10;";
+     
     }
 
     alert(newCoords)
@@ -377,11 +384,16 @@ export default function App() {
 
   // Make a Map Matching request
   async function getMatch(coordinates, radiuses, profile) {
+    alert(`https://api.mapbox.com/matching/v5/mapbox/${profile}/${coordinates}?geometries=geojson&radiuses=${radiuses}&access_token=${mapboxgl.accessToken}`)
     // Create the query
-    const query = await fetch(
-      `https://api.mapbox.com/matching/v5/mapbox/${profile}/${coordinates}?geometries=geojson&radiuses=${radiuses}&access_token=${mapboxgl.accessToken}`,
+    /*const query = await fetch(
+      `https://api.mapbox.com/matching/v5/mapbox/${profile}/${coordinates}?radiuses=${radiuses}&access_token=${mapboxgl.accessToken}`,
       { method: "GET" }
-    );
+    );*/
+    const query = await fetch(
+      "https://api.mapbox.com/matching/v5/mapbox/driving-traffic/-71.12539,42.363328;-71.125462,42.363421?radiuses=25;25&access_token=pk.eyJ1IjoicHJpbi1wIiwiYSI6ImNsdDZvbDRsdjA0cGQycXBwbDRudmw4MHYifQ.QUoBtqyiYpgWTCshcAvbkg",
+      { method: "GET" }
+    ); 
     const response = await query.json();
     // Handle errors
     if (response.code !== "Ok") {
@@ -425,8 +437,8 @@ export default function App() {
           variant="outlined"
           onClick={() => {
             updateRoute(
-              [-71.12539, 42.363328],
-              [-71.127942, 42.36412],
+              "-71.12539,42.363328",
+              "-71.127942,42.36412",
               "allstonLoop"
             );
           }}
