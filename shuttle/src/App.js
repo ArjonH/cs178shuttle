@@ -384,16 +384,11 @@ export default function App() {
 
   // Make a Map Matching request
   async function getMatch(coordinates, radiuses, profile) {
-    alert(`https://api.mapbox.com/matching/v5/mapbox/${profile}/${coordinates}?geometries=geojson&radiuses=${radiuses}&access_token=${mapboxgl.accessToken}`)
     // Create the query
-    /*const query = await fetch(
+    const query = await fetch(
       `https://api.mapbox.com/matching/v5/mapbox/${profile}/${coordinates}?radiuses=${radiuses}&access_token=${mapboxgl.accessToken}`,
       { method: "GET" }
-    );*/
-    const query = await fetch(
-      "https://api.mapbox.com/matching/v5/mapbox/driving-traffic/-71.12539,42.363328;-71.125462,42.363421?radiuses=25;25&access_token=pk.eyJ1IjoicHJpbi1wIiwiYSI6ImNsdDZvbDRsdjA0cGQycXBwbDRudmw4MHYifQ.QUoBtqyiYpgWTCshcAvbkg",
-      { method: "GET" }
-    ); 
+    );
     const response = await query.json();
     // Handle errors
     if (response.code !== "Ok") {
