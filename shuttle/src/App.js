@@ -307,6 +307,39 @@ export default function App() {
       numCoordinates = totalCoords - startStopIndex + (endStopIndex + 1);
     }
 
+    //For testing purposes only
+    alert(startStopIndex)
+    alert(endStopIndex)
+    alert(totalCoords)
+    var testArray = Constants.dictRoute[route].slice(startStopIndex, endStopIndex)
+    alert(testArray)
+    // Add a new layer to the map
+    map.current.addLayer({
+      id: 'routeTest2',
+      type: 'line',
+      source: {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          properties: {},
+          geometry: {
+            type: "LineString",
+            coordinates:testArray,
+          },
+        }
+      },
+      layout: {
+        'line-join': 'round',
+        'line-cap': 'round'
+      },
+      paint: {
+        'line-color': '#038888',
+        'line-width': 20,
+        'line-opacity': 0.8
+      }
+    });
+    //END of testing purposes
+
     var newCoords = ""; //List of coords
     var curIndex = startStopIndex;
     var curCoord;
@@ -322,7 +355,7 @@ export default function App() {
     // Looping through to get coordinates for API call and formatting them
     var radius = ""; //For API call, same number of radii as coordinates
 
-    //alert(count)
+    alert(count)
     for (let i = 0; i < count; i++) {
       curCoord = routeCoordinates[curIndex];
       if (i === count-1){
@@ -433,7 +466,7 @@ export default function App() {
           onClick={() => {
             updateRoute(
               "-71.12539,42.363328",
-              "-71.127942,42.36412",
+              "-71.115594,42.372206",
               "allstonLoop"
             );
           }}
