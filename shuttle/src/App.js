@@ -299,8 +299,12 @@ export default function App() {
 
     // Get the coordinates of the route using the inputs
     const routeCoordinates = Constants.dictRoute[route]; // all coordinates of a route
+    alert(routeCoordinates)
     const startStopIndex = routeCoordinates.indexOf(startStop); // index of the start coord in the array
     const endStopIndex = routeCoordinates.indexOf(endStop); // index of the end coord in the array
+
+    alert(startStopIndex)
+    alert(endStopIndex)
     var numCoordinates = endStopIndex - startStopIndex; // num of coords between start and stop coord
     const totalCoords = routeCoordinates.length;
     if (numCoordinates < 0) {
@@ -322,6 +326,7 @@ export default function App() {
     // Looping through to get coordinates for API call and formatting them
     var radius = ""; //For API call, same number of radii as coordinates
 
+    alert(count)
     for (let i = 0; i < count; i++) {
       curCoord = routeCoordinates[curCoord];
       newCoords =
@@ -335,6 +340,8 @@ export default function App() {
       radius = radius + "10;";
     }
 
+    alert(newCoords)
+    alert(radius)
     getMatch(newCoords, radius, profile); //Calls function to call API
 
     /*
@@ -372,7 +379,7 @@ export default function App() {
   async function getMatch(coordinates, radiuses, profile) {
     // Create the query
     const query = await fetch(
-      `https://api.mapbox.com/matching/v5/mapbox/${profile}/${coordinates}?geometries=geojson&radiuses=${radiuses}&steps=false&access_token=${mapboxgl.accessToken}`,
+      `https://api.mapbox.com/matching/v5/mapbox/${profile}/${coordinates}?geometries=geojson&radiuses=${radiuses}&access_token=${mapboxgl.accessToken}`,
       { method: "GET" }
     );
     const response = await query.json();
