@@ -1,7 +1,8 @@
 import React, { useRef, useEffect, useState } from 'react';
 import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
-import shapesRaw from './textFiles/shapesSecOnly.txt';  
 import * as Constants from './constants'
+import Button from '@mui/material/Button';
+
 
 mapboxgl.accessToken = 'pk.eyJ1IjoicHJpbi1wIiwiYSI6ImNsdDZwZGFpZDBlM2syanA2dmhlbnJwdTMifQ.bhuhjb9c4DrY7m8pOScJpw';
 
@@ -286,7 +287,7 @@ export default function App() {
 
       //Traffic (for uncertainty) functions
       // Inputs: startStop coordinate (format [long,lat]), endStop coordinate, route (name, String)
-        function updateRoute(startStop, endStop, route) { //Make button to test this
+      function updateRoute(startStop, endStop, route) { //Make button to test this
 
             // Set the profile
             const profile = 'driving-traffic'; //times informed by traffic data
@@ -411,6 +412,9 @@ export default function App() {
             Draw your route using the draw tools on the right. To get the most
             accurate route match, draw points at regular intervals.
         </p>
+        <Button variant="outlined" onClick={() => {this.updateRoute([-71.12539,42.363328], [-71.127942,42.36412], 'allstonLoop');}}>
+          Test update
+        </Button>
         <div id="directions"></div>
       </div>
     </div>
