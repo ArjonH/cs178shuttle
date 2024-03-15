@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from "react";
 import mapboxgl from "!mapbox-gl"; // eslint-disable-line import/no-webpack-loader-syntax
 import * as Constants from "./constants";
 import Button from "@mui/material/Button";
+import { AccessAlarm, ThreeDRotation } from '@mui/icons-material'; // for shuttle icons
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoicHJpbi1wIiwiYSI6ImNsdDZwZGFpZDBlM2syanA2dmhlbnJwdTMifQ.bhuhjb9c4DrY7m8pOScJpw";
@@ -192,42 +193,42 @@ export default function App() {
           map.current.addLayer({
             id: "shuttle",
             type: "circle",
-            //'type': 'symbol',
+            //type: 'symbol',
             source: "shuttle",
             paint: {
               "circle-radius": 8,
               "circle-color": "#FFFFFF",
-            },
-            filter: ["!=", "id", "670358"], //HARDCODED //Filter to only show particular features
-            //'layout': {
+            }, 
+            filter: ["!=", "id", "670312"], //HARDCODED //Filter to only show particular features
+            /*layout: {
             // This icon is a part of the Mapbox Streets style.
             // To view all images available in a Mapbox style, open
             // the style in Mapbox Studio and click the "Images" tab.
             // To add a new image to the style at runtime see
             // https://docs.mapbox.com/mapbox-gl-js/example/add-image/
-            //'icon-image': 'shuttleImg' //change to actual icon
-            //}
+              'icon-image': 'za-provincial-2' //change to actual icon
+            }*/
           });
 
           // Shows shuttle that we recommend user taking
           map.current.addLayer({
             id: "shuttleHighlighted",
             type: "circle",
-            //'type': 'symbol',
+            //type: 'symbol',
             source: "shuttle",
             paint: {
-              "circle-radius": 8,
+              "circle-radius": 30,
               "circle-color": "#F32FFF",
             },
-            filter: ["==", "id", "670358"], //HARDCODED CHANGE ID VAL To an updated state val
-            //'layout': {
+            filter: ["==", "id", "670312"], //HARDCODED CHANGE ID VAL To an updated state val
+            /*'layout': {
             // This icon is a part of the Mapbox Streets style.
             // To view all images available in a Mapbox style, open
             // the style in Mapbox Studio and click the "Images" tab.
             // To add a new image to the style at runtime see
             // https://docs.mapbox.com/mapbox-gl-js/example/add-image/
-            //'icon-image': 'shuttleImg' //change to actual icon
-            //}
+              'icon-image': 'za-provincial-2' //change to actual icon
+            }*/
           });
         }
       );
@@ -256,7 +257,7 @@ export default function App() {
             var tripId = shuttle.vehicle.trip.trip_id;
 
             //Check if shuttle is in desired route
-            if (tripId === "670358") {
+            if (tripId === "670312") {
               // HARDCODED NEED TO CHANGE TO ACTUAL TRIP IDs
               var coord = [
                 shuttle.vehicle.position.longitude,
