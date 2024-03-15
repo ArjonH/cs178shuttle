@@ -291,7 +291,7 @@ export default function App() {
 
   //Traffic (for uncertainty) functions
   // Inputs: startStop coordinate (format "long,lat"), endStop coordinate, route (name, String)
-  function updateRoute(startStop, endStop, route) {
+  async function updateRoute(startStop, endStop, route) {
     //Make button to test this
 
     // Set the profile
@@ -308,12 +308,12 @@ export default function App() {
     }
 
     //For testing purposes only
-    alert(startStopIndex)
-    alert(endStopIndex)
-    alert(totalCoords)
+    //alert(startStopIndex)
+    //alert(endStopIndex)
+    //alert(totalCoords)
     var testArray = Constants.dictRoute[route].slice(startStopIndex, endStopIndex)
-    alert(testArray)
-    // Add a new layer to the map
+    //alert(testArray)
+    // Add a new layer to the map - shows route that the user will travel in the shuttle
     map.current.addLayer({
       id: 'routeTest2',
       type: 'line',
@@ -355,7 +355,7 @@ export default function App() {
     // Looping through to get coordinates for API call and formatting them
     var radius = ""; //For API call, same number of radii as coordinates
 
-    alert(count)
+    //alert(count)
     for (let i = 0; i < count; i++) {
       curCoord = routeCoordinates[curIndex];
       if (i === count-1){
@@ -380,10 +380,19 @@ export default function App() {
      
     }
 
-    alert(newCoords)
-    alert(radius)
-    getMatch(newCoords, radius, profile); //Calls function to call API
+    //alert(newCoords)
+    //alert(radius)
+    var tripDurationTraffic = await getMatch(newCoords, radius, profile); //Calls function to call API
+    var tripDuration = await getMatch(newCoords, radius, "driving"); //Calls function to call API (car without traffic)
 
+    // Target the sidebar to add the instructions
+    const directions = document.getElementById("directions");
+
+    directions.innerHTML = `<p><strong>Trip duration w/ traffic: ${
+      tripDurationTraffic
+    }, Trip duration wo/ traffic: ${
+      tripDuration
+    } min.</strong></p>`;
     /*
             var newCoords = '' //List of coords
             var curIndex = startStopIndex
@@ -436,13 +445,11 @@ export default function App() {
 
     //Get trip duration
     var data = response.matchings[0];
-    // Target the sidebar to add the instructions
-    const directions = document.getElementById("directions");
+    
     //Show trip duration
     var tripDuration = Math.floor(data.duration / 60);
-    directions.innerHTML = `<p><strong>Trip duration: ${Math.floor(
-      data.duration / 60
-    )} min.</strong></p>`;
+    return tripDuration
+    
   }
 
   return (
