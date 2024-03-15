@@ -447,7 +447,7 @@ export default function App() {
     var data = response.matchings[0];
     
     //Show trip duration
-    var tripDuration = Math.floor(data.duration / 60);
+    var tripDuration = Math.ceil(data.duration / 60);
     return tripDuration
     
   }
