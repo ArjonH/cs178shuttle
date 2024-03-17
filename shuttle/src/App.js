@@ -17,6 +17,9 @@ export default function App() {
   //For traffic data (uncertainty)
   const [trafficConditions, setTraffic] = useState(null);
 
+  //For selected route
+  const [selectedShuttle, setSelectedShuttle] = useState("670312") //Hardcoded, change to ""
+
   useEffect(() => {
     if (map.current) return; // initialize map only once
     map.current = new mapboxgl.Map({
@@ -199,7 +202,7 @@ export default function App() {
               "circle-radius": 8,
               "circle-color": "#FFFFFF",
             }, 
-            filter: ["!=", "id", "670312"], //HARDCODED //Filter to only show particular features
+            filter: ["!=", "id", selectedShuttle], //HARDCODED //Filter to only show particular features
             /*layout: {
             // This icon is a part of the Mapbox Streets style.
             // To view all images available in a Mapbox style, open
@@ -220,7 +223,7 @@ export default function App() {
               "circle-radius": 30,
               "circle-color": "#F32FFF",
             },
-            filter: ["==", "id", "670312"], //HARDCODED CHANGE ID VAL To an updated state val
+            filter: ["==", "id", selectedShuttle], //HARDCODED CHANGE ID VAL To an updated state val
             /*'layout': {
             // This icon is a part of the Mapbox Streets style.
             // To view all images available in a Mapbox style, open
@@ -257,7 +260,7 @@ export default function App() {
             var tripId = shuttle.vehicle.trip.trip_id;
 
             //Check if shuttle is in desired route
-            if (tripId === "670312") {
+            if (tripId in Constants.trip_id_route_id) {
               // HARDCODED NEED TO CHANGE TO ACTUAL TRIP IDs
               var coord = [
                 shuttle.vehicle.position.longitude,
