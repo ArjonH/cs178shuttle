@@ -5,7 +5,9 @@ import Button from "@mui/material/Button";
 import { AccessAlarm, ThreeDRotation } from '@mui/icons-material'; // for shuttle icons
 
 mapboxgl.accessToken =
-  "pk.eyJ1IjoicHJpbi1wIiwiYSI6ImNsdDZwZGFpZDBlM2syanA2dmhlbnJwdTMifQ.bhuhjb9c4DrY7m8pOScJpw";
+  "pk.eyJ1IjoicHJpbi1wIiwiYSI6ImNsdDZvbDRsdjA0cGQycXBwbDRudmw4MHYifQ.QUoBtqyiYpgWTCshcAvbkg"; //own draft style
+  //"pk.eyJ1IjoicHJpbi1wIiwiYSI6ImNsdDZvbDRsdjA0cGQycXBwbDRudmw4MHYifQ.QUoBtqyiYpgWTCshcAvbkg"; // own style
+  //"pk.eyJ1IjoicHJpbi1wIiwiYSI6ImNsdDZwZGFpZDBlM2syanA2dmhlbnJwdTMifQ.bhuhjb9c4DrY7m8pOScJpw"; //default style
 
 export default function App() {
   const mapContainer = useRef(null);
@@ -18,13 +20,15 @@ export default function App() {
   const [trafficConditions, setTraffic] = useState(null);
 
   //For selected route
-  const [selectedShuttle, setSelectedShuttle] = useState("670312") //Hardcoded, change to ""
+  const [selectedShuttle, setSelectedShuttle] = useState("") //Hardcoded, change to ""
 
   useEffect(() => {
     if (map.current) return; // initialize map only once
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
-      style: "mapbox://styles/mapbox/navigation-night-v1", //like 'mapbox://styles/mapbox/navigation-day-v1'
+      style: "mapbox://styles/prin-p/clt7k1h6z001201p3eufhezul/draft", // draft map
+      //style: "mapbox://styles/prin-p/clt7k1h6z001201p3eufhezul", //published changes
+      //style: "mapbox://styles/mapbox/navigation-night-v1", //like 'mapbox://styles/mapbox/navigation-day-v1'
       //this could also be good, very minimalistic but kinda hurts eyes mapbox://styles/mapbox/light-v11
       center: [lng, lat],
       zoom: zoom,
@@ -196,7 +200,8 @@ export default function App() {
         // the style in Mapbox Studio and click the "Images" tab.
         // To add a new image to the style at runtime see
         // https://docs.mapbox.com/mapbox-gl-js/example/add-image/
-          'icon-image': 'za-provincial-2', //change to actual icon,
+          //'icon-image': 'za-provincial-2', //change to actual icon,
+          'icon-image': 'noun-bus-31771',
           //'icon-color': '#000000',
           'icon-size': 0.3
         }
@@ -205,13 +210,8 @@ export default function App() {
       // Shows shuttle that we recommend user taking
       map.current.addLayer({
         id: "shuttleHighlighted",
-        //type: "circle",
         type: 'symbol',
         source: "shuttle",
-        /*paint: {
-          "circle-radius": 30,
-          "circle-color": "#F32FFF",
-        },*/
         filter: ["==", "id", selectedShuttle], //HARDCODED CHANGE ID VAL To an updated state val
         'layout': {
         // This icon is a part of the Mapbox Streets style.
@@ -219,7 +219,8 @@ export default function App() {
         // the style in Mapbox Studio and click the "Images" tab.
         // To add a new image to the style at runtime see
         // https://docs.mapbox.com/mapbox-gl-js/example/add-image/
-          'icon-image': 'za-provincial-2', //change to actual icon
+          //'icon-image': 'za-provincial-2', //change to actual icon
+          'icon-image': 'noun-bus-31771',
           'icon-color': '#FFFFFF',
           'icon-size': 0.3
         }
