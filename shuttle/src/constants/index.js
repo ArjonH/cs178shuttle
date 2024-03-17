@@ -2487,7 +2487,7 @@ export const stop_pos_name = {
 };
 
 export const trip_id_route_id = {
-    "670302" : -1, //TEST, REMOVE
+    "670303" : -1, //TEST, REMOVE
     // Allston Loop
     "661197" : 778,
     "661198" : 778,

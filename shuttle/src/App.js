@@ -177,6 +177,54 @@ export default function App() {
         },
       });
 
+      // Add the shuttle location as a source.
+      map.current.addSource("shuttle", {
+        type: "geojson",
+        data: geojson,
+      });
+
+      //Shows shuttles that are live but we don't recommend
+      map.current.addLayer({
+        id: "shuttle",
+        //type: "circle",
+        type: 'symbol',
+        source: "shuttle",
+        filter: ["!=", "id", selectedShuttle], //HARDCODED //Filter to only show particular features
+        layout: {
+        // This icon is a part of the Mapbox Streets style.
+        // To view all images available in a Mapbox style, open
+        // the style in Mapbox Studio and click the "Images" tab.
+        // To add a new image to the style at runtime see
+        // https://docs.mapbox.com/mapbox-gl-js/example/add-image/
+          'icon-image': 'za-provincial-2', //change to actual icon,
+          //'icon-color': '#000000',
+          'icon-size': 0.3
+        }
+      });
+
+      // Shows shuttle that we recommend user taking
+      map.current.addLayer({
+        id: "shuttleHighlighted",
+        //type: "circle",
+        type: 'symbol',
+        source: "shuttle",
+        /*paint: {
+          "circle-radius": 30,
+          "circle-color": "#F32FFF",
+        },*/
+        filter: ["==", "id", selectedShuttle], //HARDCODED CHANGE ID VAL To an updated state val
+        'layout': {
+        // This icon is a part of the Mapbox Streets style.
+        // To view all images available in a Mapbox style, open
+        // the style in Mapbox Studio and click the "Images" tab.
+        // To add a new image to the style at runtime see
+        // https://docs.mapbox.com/mapbox-gl-js/example/add-image/
+          'icon-image': 'za-provincial-2', //change to actual icon
+          'icon-color': '#FFFFFF',
+          'icon-size': 0.3
+        }
+      });
+      /*
       // Load an image from an external URL.
       map.current.loadImage(
         "https://docs.mapbox.com/mapbox-gl-js/assets/cat.png",
@@ -195,8 +243,8 @@ export default function App() {
           //Shows shuttles that are live but we don't recommend
           map.current.addLayer({
             id: "shuttle",
-            //type: "circle",
-            type: 'symbol',
+            type: "circle",
+            //type: 'symbol',
             source: "shuttle",
             paint: {
               "circle-radius": 2,
@@ -236,7 +284,7 @@ export default function App() {
             }
           });
         }
-      );
+      );*/
 
       // Update the source from the API every 2 seconds.
       const updateSource = setInterval(async () => {
