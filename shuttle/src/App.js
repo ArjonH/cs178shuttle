@@ -16,11 +16,165 @@ export default function App() {
   const [lat, setLat] = useState(42.3725);
   const [zoom, setZoom] = useState(13.95);
 
+  // HEVER ADDED THIS THING
+  const [userChoice, setUserChoice] = useState('SECStart'); // Default to SEC as start
+
   //For traffic data (uncertainty)
   const [trafficConditions, setTraffic] = useState(null);
 
   //For selected route
   const [selectedShuttle, setSelectedShuttle] = useState("") //Hardcoded, change to ""
+
+  async function getUpdates() {
+    try {
+      const response = await fetch("https://passio3.com/harvard/passioTransit/gtfs/realtime/tripUpdates.json");
+      const data = await response.json();
+      const updates = data.entity.filter(entity => Constants.trip_id_route_id.hasOwnProperty(entity.trip_update.trip.trip_id))
+        .map(entity => {
+          return {
+            tripId: entity.trip_update.trip.trip_id,
+            stopTimeUpdates: entity.trip_update.stop_time_update.map(update => ({
+              stopId: update.stop_id,
+              arrivalTime: update.arrival.time
+            }))
+          };
+        });
+      return updates;
+    } catch (error) {
+      console.error("Failed to fetch shuttle updates:", error);
+      return [];
+    }
+  }
+
+  // Inputs: startStop coordinate (format "long,lat"), endStop coordinate, route (name, String)
+  async function calculateETA(startStop, endStop, route) {
+
+    // Set the profile
+    const profile = "driving-traffic"; //times informed by traffic data
+
+    // Get the coordinates of the route using the inputs
+    const routeCoordinates = Constants.dictRouteString[route]; // all coordinates of a route
+    const startStopIndex = routeCoordinates.indexOf(startStop); // index of the start coord in the array
+    const endStopIndex = routeCoordinates.indexOf(endStop); // index of the end coord in the array
+    var numCoordinates = endStopIndex - startStopIndex; // num of coords between start and stop coord
+    const totalCoords = routeCoordinates.length;
+    if (numCoordinates < 0) {
+      numCoordinates = totalCoords - startStopIndex + (endStopIndex + 1);
+    }
+
+    var newCoords = ""; //List of coords
+    var curIndex = startStopIndex;
+    var curCoord;
+    var count = numCoordinates; // number of coordinates added to list for API call
+    var skipCoords = 1;
+    if (count > 100) {
+      //100 is the max number of coords allowed in API call
+      count = 100; // number of coordinates added to list
+      //skipCoords is the number of coords we'll skip (i.e. not include in the API call)
+      skipCoords = Math.ceil(numCoordinates / 100); //TEST if about correct number
+    }
+
+    // Looping through to get coordinates for API call and formatting them
+    var radius = ""; //For API call, same number of radii as coordinates
+
+    //alert(count)
+    for (let i = 0; i < count; i++) {
+      curCoord = routeCoordinates[curIndex];
+      if (i === count-1){
+        newCoords =
+          newCoords + curCoord;
+
+        // Set the radius for each coordinate pair to 10 meters
+        radius = radius + "10";
+      } else {
+        newCoords =
+          newCoords + curCoord + ";";
+        
+          // Set the radius for each coordinate pair to 10 meters
+        radius = radius + "10;";
+      } 
+      
+      curIndex = curIndex + skipCoords;
+      if (curIndex >= totalCoords) {
+        curIndex = 0;
+      }
+
+     
+    }
+    var tripDurationTraffic = await getMatch(newCoords, radius, profile); //Calls function to call API
+    var tripDuration = await getMatch(newCoords, radius, "driving"); //Calls function to call API (car without traffic)
+
+    return tripDurationTraffic, tripDuration
+  }
+  
+  // CLOSEST STOP BASED ON WALKING TIME
+async function findClosestStop(clickedLngLat) {
+  let shortestOverallTime = Infinity;
+  let closestStopName = "";
+  let closestStopPosition = "";
+
+  // Convert stop_pos_name keys to an array suitable for the Matrix API
+  const stops = Object.keys(Constants.stop_pos_name).map(coord => encodeURIComponent(coord)).join(';');
+  const userLocation = `${clickedLngLat.lng},${clickedLngLat.lat}`;
+
+  const url = `https://api.mapbox.com/directions-matrix/v1/mapbox/walking/${userLocation};${stops}?sources=0&access_token=${mapboxgl.accessToken}`;
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+  
+    if (data.code !== "Ok") {
+      console.error("Error fetching data from Mapbox Matrix API:", data.message);
+      return;
+    }
+  
+    const durations = data.durations[0];
+    // Find the index of the shortest duration, excluding the first element
+    const shortestDurationIndex = durations.slice(1).findIndex(duration => duration === Math.min(...durations.slice(1))) + 1;
+    const shortestDuration = durations[shortestDurationIndex];
+  
+    if (shortestDuration < shortestOverallTime) {
+      shortestOverallTime = shortestDuration; // Update shortestOverallTime with the new shortest duration
+      closestStopPosition = Object.keys(Constants.stop_pos_name)[shortestDurationIndex - 1]; // Adjust index for the actual position in the original array
+      closestStopName = Constants.stop_pos_name[closestStopPosition];
+    }
+  } catch (error) {
+    console.error("Failed to find the closest stop:", error);
+  }
+  
+  if (closestStopName) {
+    // Instead of alerting, return the closest stop information
+    return { name: closestStopName, coordinates: closestStopPosition, walkingTime: Math.round(shortestOverallTime / 60) };
+  } else {
+    throw new Error("Failed to find the closest stop.");
+  }
+}
+
+async function alertTotalETA(clickedLngLat) {
+  try {
+    const closestStopInfo = await findClosestStop(clickedLngLat);
+    const routes = ["allstonLoop", "quadSECDirect", "SECExpress"];
+    let minETA = Infinity;
+    let bestRoute = "";
+    let bestStop = "";
+
+    for (const route of routes) {
+      const etaToSEC = await calculateETA("-71.125392617,42.363328644", closestStopInfo.coordinates, route); // Calculate ETA from SEC to closest stop
+      const totalETA = etaToSEC + closestStopInfo.walkingTime; // Combine ETAs
+
+      if (totalETA < minETA) {
+        minETA = totalETA;
+        bestRoute = route;
+        bestStop = closestStopInfo.name;
+      }
+    }
+
+    alert(`Best route: ${bestRoute}, Best stop: ${bestStop}, Minimum ETA: ${minETA} minutes.`);
+  } catch (error) {
+    console.error("Failed to calculate total ETA:", error);
+    alert("Failed to calculate total ETA.");
+  }
+}
 
   useEffect(() => {
     if (map.current) return; // initialize map only once
@@ -32,6 +186,12 @@ export default function App() {
       //this could also be good, very minimalistic but kinda hurts eyes mapbox://styles/mapbox/light-v11
       center: [lng, lat],
       zoom: zoom,
+    });
+
+    // Once user clicks on the map, it uses that point to find the closest stop
+    map.current.on('click', async (e) => {
+      const clickedLngLat = e.lngLat;
+      alertTotalETA(clickedLngLat);
     });
 
     // Once user interacts with a map, sets the state of the map to these new values
@@ -512,6 +672,14 @@ export default function App() {
       {/* Displays center coordinates of map */}
       <div className="sidebar">
         Longitude: {lng} | Latitude: {lat} | Zoom: {zoom}
+
+        <div>
+          <input type="radio" id="secStart" name="secPosition" value="SECStart" checked={userChoice === 'SECStart'} onChange={(e) => setUserChoice(e.target.value)} />
+          <label htmlFor="secStart">SEC as Start</label>
+          <input type="radio" id="secEnd" name="secPosition" value="SECEnd" checked={userChoice === 'SECEnd'} onChange={(e) => setUserChoice(e.target.value)} />
+          <label htmlFor="secEnd">SEC as End</label>
+        </div>
+
       </div>
 
       {/* Displays map */}

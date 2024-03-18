@@ -2464,7 +2464,7 @@ export const stop_id_name = {
 export const stop_pos_name = {
     // (long, lat), stop_name
     
-    "-71.119075, 42.364114":        "1 Western Ave",
+    "-71.119075,42.364114":        "1 Western Ave",
     "-71.127741708,42.363958424":   "Barry's Corner (Northbound)",
     "-71.119965,42.372722":         "Harvard Square (Northbound)", 
     "-71.120985,42.371524":         "Kennedy School (Northbound)",
