@@ -3,6 +3,14 @@ import mapboxgl from "!mapbox-gl"; // eslint-disable-line import/no-webpack-load
 import * as Constants from "./constants";
 import Button from "@mui/material/Button";
 import { AccessAlarm, ThreeDRotation } from '@mui/icons-material'; // for shuttle icons
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+import moment from "moment";
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoicHJpbi1wIiwiYSI6ImNsdDZvbDRsdjA0cGQycXBwbDRudmw4MHYifQ.QUoBtqyiYpgWTCshcAvbkg"; //own draft style
@@ -15,6 +23,9 @@ export default function App() {
   const [lng, setLng] = useState(-71.1274); //intial location map is zoomed in on
   const [lat, setLat] = useState(42.3725);
   const [zoom, setZoom] = useState(13.95);
+
+  //for rankings
+  const [rows, setRows] = useState([{eta: "", route: "", walkTime: ""}]);
 
   // HEVER ADDED THIS THING
   const [userChoice, setUserChoice] = useState(""); // Default to SEC as start
@@ -204,19 +215,19 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
     var trip = allTripUpdates[x];
     foundStart = false;
     //alert("trip")
-    alert(trip.tripId)
+    // alert(trip.tripId)
     for(let y in trip.stopTimeUpdates){
       //alert("new tripid")
       
       var stops = trip.stopTimeUpdates[y];
-      alert(stops.stopId)
+      //alert(stops.stopId)
       if(stops.stopId === startStop) {
         foundStart = true;
-        alert("we found the start");
+        // alert("we found the start");
       }
       if((String(stops.stopId) === String(endStop)) && foundStart) {
         etas.push({eta: stops.arrivalTime, tripId: trip.tripId})
-        alert("we found the end");
+        // alert("we found the end");
         break;
       }
     }
@@ -230,6 +241,10 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
 
   return etas;
   
+}
+
+function createData(name, calories, fat, carbs, protein) {
+  return { name, calories, fat, carbs, protein };
 }
 
   useEffect(() => {
@@ -250,14 +265,30 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
       var closestStop = await findClosestStop(clickedLngLat);
       var allTrips = await getUpdates();
       var ranking;
-      alert(userChoiceRef.current);
+      // alert(userChoiceRef.current);
       if (userChoiceRef.current === 'SECStart'){
         ranking = await rankTrips("58343", closestStop.stopId, allTrips)
       }
       else {
         ranking = await rankTrips(closestStop.stopId, "58343", allTrips)
       }
-      alert(ranking)
+      //alert(ranking)
+      // ranking = [obj {eta, trip_id}]
+      var addRow = []
+      for(let x in ranking) {
+        var trip = ranking[x]
+        var route = Constants.route_id_name[Constants.trip_id_route_id[String(trip.tripId)]]
+        //const ETAobject = new Date(trip.eta)
+        const ETAobject= moment.unix(trip.eta)
+        const parsed = ETAobject.format('HH:mm:ss')
+        alert(parsed)
+        
+        const currentEpoch = Date.now()
+        var ETAInMinutes = Math.floor((ETAobject - currentEpoch)/60000)
+        addRow.push({eta: parsed, route: route, walkTime: closestStop.walkingTime})
+      }
+      setRows(addRow)
+        
 
     });
 
@@ -772,6 +803,37 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
           Test update
         </Button>
         <div id="directions"></div>
+        <div id="tripRankings">
+          <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 200 }} size="small" aria-label="a dense table">
+            <TableHead>
+              <TableRow>
+                <TableCell>ETA at destination</TableCell>
+                <TableCell align="right">Route</TableCell>
+                <TableCell align="right">Walk time</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {rows.map((row) => (
+                <TableRow
+                  key={row.route}
+                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                >
+                  <TableCell component="th" scope="row">
+                    {row.eta}
+                  </TableCell>
+                  <TableCell align="right">{
+                    row.route
+                  }</TableCell>
+                  <TableCell align="right">{
+                    row.walkTime
+                  }</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        </div>
       </div>
     </div>
   );
