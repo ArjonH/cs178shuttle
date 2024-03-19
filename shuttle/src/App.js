@@ -130,7 +130,7 @@ async function findClosestStop(clickedLngLat) {
   
   // alert("testing user choice")
   // alert(userChoice)
-
+  //alert("test")
   let shortestOverallTime = Infinity;
   let closestStopName = "";
   let closestStopPosition = ""; // Ensure this variable is defined in the correct scope
@@ -140,12 +140,12 @@ async function findClosestStop(clickedLngLat) {
   const userLocation = `${clickedLngLat.lng},${clickedLngLat.lat}`;
 
   const url = `https://api.mapbox.com/directions-matrix/v1/mapbox/walking/${userLocation};${stops}?sources=0&access_token=${mapboxgl.accessToken}`;
-
   try {
     const response = await fetch(url);
     const data = await response.json();
   
     if (data.code !== "Ok") {
+      //alert("bad")
       console.error("Error fetching data from Mapbox Matrix API:", data.message);
       return;
     }
@@ -154,15 +154,16 @@ async function findClosestStop(clickedLngLat) {
     // Find the index of the shortest duration, excluding the first element
     const shortestDurationIndex = durations.slice(1).findIndex(duration => duration === Math.min(...durations.slice(1))) + 1;
     const shortestDuration = durations[shortestDurationIndex];
-
+    
     //alert(shortestDuration)
   
     if (shortestDuration < shortestOverallTime) {
       shortestOverallTime = shortestDuration; // Update shortestOverallTime with the new shortest duration
-      const closestStopPosition = Object.keys(Constants.stop_pos_name)[shortestDurationIndex - 1]; // Adjust index for the actual position in the original array
+      closestStopPosition = Object.keys(Constants.stop_pos_name)[shortestDurationIndex - 1]; // Adjust index for the actual position in the original array
       closestStopName = Constants.stop_pos_name[closestStopPosition];
     }
   } catch (error) {
+    //alert("error")
     console.error("Failed to find the closest stop:", error);
   }
   
@@ -243,10 +244,6 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
   
 }
 
-function createData(name, calories, fat, carbs, protein) {
-  return { name, calories, fat, carbs, protein };
-}
-
   useEffect(() => {
     if (map.current) return; // initialize map only once
     map.current = new mapboxgl.Map({
@@ -263,17 +260,27 @@ function createData(name, calories, fat, carbs, protein) {
     map.current.on('click', async (e) => {
       const clickedLngLat = e.lngLat;
       var closestStop = await findClosestStop(clickedLngLat);
+      //alert(closestStop)
       var allTrips = await getUpdates();
       var ranking;
       // alert(userChoiceRef.current);
+      var startStop;
+      var endStop;
       if (userChoiceRef.current === 'SECStart'){
+        startStop = "-71.125392617,42.363328644"
+        endStop = closestStop.coordinates
+        //alert("setting end stop")
+        //alert(endStop)
         ranking = await rankTrips("58343", closestStop.stopId, allTrips)
       }
       else {
+        endStop = "-71.125392617,42.363328644"
+        startStop = closestStop.coordinates
         ranking = await rankTrips(closestStop.stopId, "58343", allTrips)
       }
-      //alert(ranking)
-      // ranking = [obj {eta, trip_id}]
+
+      
+
       var addRow = []
       for(let x in ranking) {
         var trip = ranking[x]
@@ -281,13 +288,23 @@ function createData(name, calories, fat, carbs, protein) {
         //const ETAobject = new Date(trip.eta)
         const ETAobject= moment.unix(trip.eta)
         const parsed = ETAobject.format('HH:mm:ss')
-        alert(parsed)
+        //alert(parsed)
         
         const currentEpoch = Date.now()
         var ETAInMinutes = Math.floor((ETAobject - currentEpoch)/60000)
+        
+        //Uncertainty stuff
+        alert(startStop)
+        alert(endStop)
+        alert(Constants.route_id_uncertainty[Constants.trip_id_route_id[String(trip.tripId)]])
+        updateRoute(startStop, endStop, Constants.route_id_uncertainty[Constants.trip_id_route_id[String(trip.tripId)]])
+
+
         addRow.push({eta: parsed, route: route, walkTime: closestStop.walkingTime})
       }
       setRows(addRow)
+
+
         
 
     });
@@ -614,6 +631,9 @@ function createData(name, calories, fat, carbs, protein) {
     const routeCoordinates = Constants.dictRouteString[route]; // all coordinates of a route
     const startStopIndex = routeCoordinates.indexOf(startStop); // index of the start coord in the array
     const endStopIndex = routeCoordinates.indexOf(endStop); // index of the end coord in the array
+    alert("indexes")
+    alert(startStopIndex)
+    alert(endStopIndex)
     var numCoordinates = endStopIndex - startStopIndex; // num of coords between start and stop coord
     const totalCoords = routeCoordinates.length;
     if (numCoordinates < 0) {
@@ -706,6 +726,8 @@ function createData(name, calories, fat, carbs, protein) {
     }, Trip duration wo/ traffic: ${
       tripDuration
     } min.</strong></p>`;
+
+
     /*
             var newCoords = '' //List of coords
             var curIndex = startStopIndex
