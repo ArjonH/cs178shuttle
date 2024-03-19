@@ -17,7 +17,14 @@ export default function App() {
   const [zoom, setZoom] = useState(13.95);
 
   // HEVER ADDED THIS THING
-  const [userChoice, setUserChoice] = useState('SECStart'); // Default to SEC as start
+  const [userChoice, setUserChoice] = useState(""); // Default to SEC as start
+  const userChoiceRef = useRef(userChoice);
+
+  useEffect(() => {
+    userChoiceRef.current = userChoice;
+  }, [userChoice]);
+
+  const [fromSEC, getFromSec] = useState(true) //Hardcoded, change to ""
 
   //For traffic data (uncertainty)
   const [trafficConditions, setTraffic] = useState(null);
@@ -107,7 +114,12 @@ export default function App() {
     return tripDurationTraffic, tripDuration
   }
 
+//Finds the closest stop to input coordinate //WORKS
 async function findClosestStop(clickedLngLat) {
+  
+  // alert("testing user choice")
+  // alert(userChoice)
+
   let shortestOverallTime = Infinity;
   let closestStopName = "";
   let closestStopPosition = ""; // Ensure this variable is defined in the correct scope
@@ -151,7 +163,8 @@ async function findClosestStop(clickedLngLat) {
 
   if (closestStopName) {
     // Return both the name and coordinates of the closest stop, along with walking time
-    return { name: closestStopName, coordinates: closestStopPosition, walkingTime: Math.round(shortestOverallTime / 60) };
+    var stopId = Constants.name_stop_id[closestStopName]
+    return { name: closestStopName, stopId: stopId, coordinates: closestStopPosition, walkingTime: Math.round(shortestOverallTime / 60) };
   } else {
     throw new Error("Failed to find the closest stop.");
   }
@@ -183,6 +196,42 @@ async function alertTotalETA(clickedLngLat) {
   }
 }
 
+//Ranks the routes in order of ETA
+async function rankTrips(startStop, endStop, allTripUpdates) {
+  var etas = [];
+  var foundStart;
+  for(let x in allTripUpdates) {
+    var trip = allTripUpdates[x];
+    foundStart = false;
+    //alert("trip")
+    alert(trip.tripId)
+    for(let y in trip.stopTimeUpdates){
+      //alert("new tripid")
+      
+      var stops = trip.stopTimeUpdates[y];
+      alert(stops.stopId)
+      if(stops.stopId === startStop) {
+        foundStart = true;
+        alert("we found the start");
+      }
+      if((String(stops.stopId) === String(endStop)) && foundStart) {
+        etas.push({eta: stops.arrivalTime, tripId: trip.tripId})
+        alert("we found the end");
+        break;
+      }
+    }
+  }
+  
+  //alert(etas)
+  //sort etas
+  etas.sort(function(a, b) {
+    return a.arrivalTime > b.arrivalTime;
+  });
+
+  return etas;
+  
+}
+
   useEffect(() => {
     if (map.current) return; // initialize map only once
     map.current = new mapboxgl.Map({
@@ -198,7 +247,18 @@ async function alertTotalETA(clickedLngLat) {
     // Once user clicks on the map, it uses that point to find the closest stop
     map.current.on('click', async (e) => {
       const clickedLngLat = e.lngLat;
-      findClosestStop(clickedLngLat);
+      var closestStop = await findClosestStop(clickedLngLat);
+      var allTrips = await getUpdates();
+      var ranking;
+      alert(userChoiceRef.current);
+      if (userChoiceRef.current === 'SECStart'){
+        ranking = await rankTrips("58343", closestStop.stopId, allTrips)
+      }
+      else {
+        ranking = await rankTrips(closestStop.stopId, "58343", allTrips)
+      }
+      alert(ranking)
+
     });
 
     // Once user interacts with a map, sets the state of the map to these new values
@@ -681,10 +741,11 @@ async function alertTotalETA(clickedLngLat) {
         Longitude: {lng} | Latitude: {lat} | Zoom: {zoom}
 
         <div>
-          <input type="radio" id="secStart" name="secPosition" value="SECStart" checked={userChoice === 'SECStart'} onChange={(e) => setUserChoice(e.target.value)} />
+          <input type="radio" id="secStart" name="secPosition" value="SECStart" onChange={() => {setUserChoice("SECStart")}} />
           <label htmlFor="secStart">SEC as Start</label>
-          <input type="radio" id="secEnd" name="secPosition" value="SECEnd" checked={userChoice === 'SECEnd'} onChange={(e) => setUserChoice(e.target.value)} />
+          <input type="radio" id="secEnd" name="secPosition" value="SECEnd" onChange={() => setUserChoice("SECEnd")} />
           <label htmlFor="secEnd">SEC as End</label>
+          
         </div>
 
       </div>

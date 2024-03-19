@@ -2458,6 +2458,32 @@ export const stop_id_name = {
     6248:   "Science Center",
     5044:   "Memorial Hall"
     
+};
+
+
+
+export const name_stop_id = {
+    // name, stop_id
+    "1 Western Ave":                5036,
+    "Barry's Corner (Northbound)":  63189,
+    "Harvard Square (Northbound)":  5041,
+    "Kennedy School (Northbound)":  5040,
+    "Stadium (Northbound)":         5039,
+    "Sever Gate":                   154627,
+    "Lamont Library":               5045,
+    "Leverett House":               6854,
+    "SEC":                          58343,
+    "Law School":                   5042,
+    "Quad":                         5049,
+     "Radcliffe Yard":              23509,
+    "Mass and Garden":              5050,
+    "Harvard Square (Southbound)":  58344,
+    "Kennedy School (Southbound)":  5054,
+    "Stadium (Southbound)":         23930,
+    "Barry's Corner (Southbound)":  63190,
+    "Maxwell Dworkin":              5043,
+    "Science Center":               6248,
+    "Memorial Hall":                5044
     
 };
 
