@@ -106,12 +106,11 @@ export default function App() {
 
     return tripDurationTraffic, tripDuration
   }
-  
-  // CLOSEST STOP BASED ON WALKING TIME
+
 async function findClosestStop(clickedLngLat) {
   let shortestOverallTime = Infinity;
   let closestStopName = "";
-  let closestStopPosition = "";
+  let closestStopPosition = ""; // Ensure this variable is defined in the correct scope
 
   // Convert stop_pos_name keys to an array suitable for the Matrix API
   const stops = Object.keys(Constants.stop_pos_name).map(coord => encodeURIComponent(coord)).join(';');
@@ -132,10 +131,12 @@ async function findClosestStop(clickedLngLat) {
     // Find the index of the shortest duration, excluding the first element
     const shortestDurationIndex = durations.slice(1).findIndex(duration => duration === Math.min(...durations.slice(1))) + 1;
     const shortestDuration = durations[shortestDurationIndex];
+
+    //alert(shortestDuration)
   
     if (shortestDuration < shortestOverallTime) {
       shortestOverallTime = shortestDuration; // Update shortestOverallTime with the new shortest duration
-      closestStopPosition = Object.keys(Constants.stop_pos_name)[shortestDurationIndex - 1]; // Adjust index for the actual position in the original array
+      const closestStopPosition = Object.keys(Constants.stop_pos_name)[shortestDurationIndex - 1]; // Adjust index for the actual position in the original array
       closestStopName = Constants.stop_pos_name[closestStopPosition];
     }
   } catch (error) {
@@ -143,7 +144,13 @@ async function findClosestStop(clickedLngLat) {
   }
   
   if (closestStopName) {
-    // Instead of alerting, return the closest stop information
+    alert(`Closest stop is ${closestStopName} with a walking time of ${Math.round(shortestOverallTime / 60)} minutes.`);
+  } else {
+    alert("Failed to find the closest stop.");
+  }
+
+  if (closestStopName) {
+    // Return both the name and coordinates of the closest stop, along with walking time
     return { name: closestStopName, coordinates: closestStopPosition, walkingTime: Math.round(shortestOverallTime / 60) };
   } else {
     throw new Error("Failed to find the closest stop.");
@@ -191,7 +198,7 @@ async function alertTotalETA(clickedLngLat) {
     // Once user clicks on the map, it uses that point to find the closest stop
     map.current.on('click', async (e) => {
       const clickedLngLat = e.lngLat;
-      alertTotalETA(clickedLngLat);
+      findClosestStop(clickedLngLat);
     });
 
     // Once user interacts with a map, sets the state of the map to these new values
