@@ -2524,6 +2524,31 @@ export const stop_pos_name = {
     "-71.114392997,42.37645186":    "Memorial Hall"
 };
 
+export const stop_pos_name_notString = {
+    // (long, lat), stop_name
+    
+    "1 Western Ave":                    "-71.119075,42.364114",
+    "Barry's Corner (Northbound)":      "-71.127741708,42.363958424",
+    "Harvard Square (Northbound)":      "-71.119965,42.372722",
+    "Kennedy School (Northbound)":      "-71.120985,42.371524",
+    "Stadium (Northbound)":             "-71.124887448,42.367121429",
+    "Sever Gate":                       "-71.114510008,42.374634042",
+    "Lamont Library":                   "-71.115008,42.37288",
+    "Leverett House":                   "-71.116713434,42.370083645",
+    "SEC":                              "-71.125392617,42.363328644",
+    "Law School":                       "-71.119937392,42.377977084",
+    "Quad":                             "-71.125325,42.381867",
+    "Radcliffe Yard":                   "-71.12212,42.3765",
+    "Mass and Garden":                  "-71.119467061,42.375187466",
+    "Harvard Square (Southbound)":      "-71.119734232,42.373378883",    
+    "Kennedy School (Southbound)":      "-71.121339,42.37120",    
+    "Stadium (Southbound)":             "-71.125015193,42.367024629",
+    "Barry's Corner (Southbound)":      "-71.127861727,42.363936034",    
+    "Maxwell Dworkin":                  "-71.11663,42.378933",
+    "Science Center":                   "-71.115974486,42.376901687",
+    "Memorial Hall":                    "-71.114392997,42.37645186"
+};
+
 export const trip_id_route_id = {
     //"670303" : -1, //TEST, REMOVE
     // Allston Loop

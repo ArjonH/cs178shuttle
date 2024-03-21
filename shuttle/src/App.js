@@ -1,8 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import mapboxgl from "!mapbox-gl"; // eslint-disable-line import/no-webpack-loader-syntax
 import * as Constants from "./constants";
-import Button from "@mui/material/Button";
-import { AccessAlarm, ThreeDRotation } from '@mui/icons-material'; // for shuttle icons
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -25,7 +23,7 @@ export default function App() {
   const [zoom, setZoom] = useState(13.95);
 
   //for rankings
-  const [rows, setRows] = useState([{eta: "", route: "", walkTime: ""}]);
+  const [rows, setRows] = useState([{eta: "", route: "", etaInMinutes: ""}]);
 
   // HEVER ADDED THIS THING
   const [userChoice, setUserChoice] = useState(""); // Default to SEC as start
@@ -65,66 +63,66 @@ export default function App() {
     }
   }
 
-  // Inputs: startStop coordinate (format "long,lat"), endStop coordinate, route (name, String)
-  async function calculateETA(startStop, endStop, route) {
+  // // Inputs: startStop coordinate (format "long,lat"), endStop coordinate, route (name, String)
+  // async function calculateETA(startStop, endStop, route) {
 
-    // Set the profile
-    const profile = "driving-traffic"; //times informed by traffic data
+  //   // Set the profile
+  //   const profile = "driving-traffic"; //times informed by traffic data
 
-    // Get the coordinates of the route using the inputs
-    const routeCoordinates = Constants.dictRouteString[route]; // all coordinates of a route
-    const startStopIndex = routeCoordinates.indexOf(startStop); // index of the start coord in the array
-    const endStopIndex = routeCoordinates.indexOf(endStop); // index of the end coord in the array
-    var numCoordinates = endStopIndex - startStopIndex; // num of coords between start and stop coord
-    const totalCoords = routeCoordinates.length;
-    if (numCoordinates < 0) {
-      numCoordinates = totalCoords - startStopIndex + (endStopIndex + 1);
-    }
+  //   // Get the coordinates of the route using the inputs
+  //   const routeCoordinates = Constants.dictRouteString[route]; // all coordinates of a route
+  //   const startStopIndex = routeCoordinates.indexOf(startStop); // index of the start coord in the array
+  //   const endStopIndex = routeCoordinates.indexOf(endStop); // index of the end coord in the array
+  //   var numCoordinates = endStopIndex - startStopIndex; // num of coords between start and stop coord
+  //   const totalCoords = routeCoordinates.length;
+  //   if (numCoordinates < 0) {
+  //     numCoordinates = totalCoords - startStopIndex + (endStopIndex + 1);
+  //   }
 
-    var newCoords = ""; //List of coords
-    var curIndex = startStopIndex;
-    var curCoord;
-    var count = numCoordinates; // number of coordinates added to list for API call
-    var skipCoords = 1;
-    if (count > 100) {
-      //100 is the max number of coords allowed in API call
-      count = 100; // number of coordinates added to list
-      //skipCoords is the number of coords we'll skip (i.e. not include in the API call)
-      skipCoords = Math.ceil(numCoordinates / 100); //TEST if about correct number
-    }
+  //   var newCoords = ""; //List of coords
+  //   var curIndex = startStopIndex;
+  //   var curCoord;
+  //   var count = numCoordinates; // number of coordinates added to list for API call
+  //   var skipCoords = 1;
+  //   if (count > 100) {
+  //     //100 is the max number of coords allowed in API call
+  //     count = 100; // number of coordinates added to list
+  //     //skipCoords is the number of coords we'll skip (i.e. not include in the API call)
+  //     skipCoords = Math.ceil(numCoordinates / 100); //TEST if about correct number
+  //   }
 
-    // Looping through to get coordinates for API call and formatting them
-    var radius = ""; //For API call, same number of radii as coordinates
+  //   // Looping through to get coordinates for API call and formatting them
+  //   var radius = ""; //For API call, same number of radii as coordinates
 
-    //alert(count)
-    for (let i = 0; i < count; i++) {
-      curCoord = routeCoordinates[curIndex];
-      if (i === count-1){
-        newCoords =
-          newCoords + curCoord;
+  //   //alert(count)
+  //   for (let i = 0; i < count; i++) {
+  //     curCoord = routeCoordinates[curIndex];
+  //     if (i === count-1){
+  //       newCoords =
+  //         newCoords + curCoord;
 
-        // Set the radius for each coordinate pair to 10 meters
-        radius = radius + "10";
-      } else {
-        newCoords =
-          newCoords + curCoord + ";";
+  //       // Set the radius for each coordinate pair to 10 meters
+  //       radius = radius + "10";
+  //     } else {
+  //       newCoords =
+  //         newCoords + curCoord + ";";
         
-          // Set the radius for each coordinate pair to 10 meters
-        radius = radius + "10;";
-      } 
+  //         // Set the radius for each coordinate pair to 10 meters
+  //       radius = radius + "10;";
+  //     } 
       
-      curIndex = curIndex + skipCoords;
-      if (curIndex >= totalCoords) {
-        curIndex = 0;
-      }
+  //     curIndex = curIndex + skipCoords;
+  //     if (curIndex >= totalCoords) {
+  //       curIndex = 0;
+  //     }
 
      
-    }
-    var tripDurationTraffic = await getMatch(newCoords, radius, profile); //Calls function to call API
-    var tripDuration = await getMatch(newCoords, radius, "driving"); //Calls function to call API (car without traffic)
+  //   }
+  //   var tripDurationTraffic = await getMatch(newCoords, radius, profile); //Calls function to call API
+  //   var tripDuration = await getMatch(newCoords, radius, "driving"); //Calls function to call API (car without traffic)
 
-    return tripDurationTraffic, tripDuration
-  }
+  //   return tripDurationTraffic, tripDuration
+  // }
 
 //Finds the closest stop to input coordinate //WORKS
 async function findClosestStop(clickedLngLat) {
@@ -177,35 +175,9 @@ async function findClosestStop(clickedLngLat) {
   if (closestStopName) {
     // Return both the name and coordinates of the closest stop, along with walking time
     var stopId = Constants.name_stop_id[closestStopName]
-    return { name: closestStopName, stopId: stopId, coordinates: closestStopPosition, walkingTime: Math.round(shortestOverallTime / 60) };
+    return { name: closestStopName, stopId: stopId, coordinates: closestStopPosition, walkingTime: Math.round(shortestOverallTime / 60), coordinatesFormatted: Constants.stop_pos_name_notString[closestStopName] };
   } else {
     throw new Error("Failed to find the closest stop.");
-  }
-}
-
-async function alertTotalETA(clickedLngLat) {
-  try {
-    const closestStopInfo = await findClosestStop(clickedLngLat);
-    const routes = ["allstonLoop", "quadSECDirect", "SECExpress"];
-    let minETA = Infinity;
-    let bestRoute = "";
-    let bestStop = "";
-
-    for (const route of routes) {
-      const etaToSEC = await calculateETA("-71.125392617,42.363328644", closestStopInfo.coordinates, route); // Calculate ETA from SEC to closest stop
-      const totalETA = etaToSEC + closestStopInfo.walkingTime; // Combine ETAs
-
-      if (totalETA < minETA) {
-        minETA = totalETA;
-        bestRoute = route;
-        bestStop = closestStopInfo.name;
-      }
-    }
-
-    alert(`Best route: ${bestRoute}, Best stop: ${bestStop}, Minimum ETA: ${minETA} minutes.`);
-  } catch (error) {
-    console.error("Failed to calculate total ETA:", error);
-    alert("Failed to calculate total ETA.");
   }
 }
 
@@ -264,6 +236,41 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
       const clickedLngLat = e.lngLat;
       var closestStop = await findClosestStop(clickedLngLat);
       //alert(closestStop)
+      // Target the sidebar to add the instructions
+      const walkTimeHTML = document.getElementById("walkingTime");
+      walkTimeHTML.innerHTML = `<p>Walk time to closest stop: ${
+        closestStop.walkingTime
+      }</p>`;
+
+      //Add Marker for closest stop
+
+      map.current.addSource("recommendedShuttle", {
+        type: "geojson",
+        data: {
+          type: "FeatureCollection",
+          features: {
+            'type': 'Feature',
+            'geometry': {
+                'type': 'Point',
+                'coordinates': closestStop.coordinatesFormatted 
+            }
+        },
+        },
+      });
+
+      //Shows shuttles that are live but we don't recommend
+      map.current.addLayer({
+        id: "recommendedShuttle",
+        //type: "circle",
+        type: 'symbol',
+        source: "recommendedShuttle",
+        layout: {
+          'icon-image': 'map-marker-svgrepo-com',
+          //'icon-color': '#000000',
+          'icon-size': 0.3
+        }
+      });
+
       var allTrips = await getUpdates();
       var ranking;
       // alert(userChoiceRef.current);
@@ -285,6 +292,10 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
       var recommendWalking = false;
       var walkingTime;
       var cyclingTime;
+      var ETAPlusCyclingTime;
+      var ETAPlusWalkingTime;
+      var parsedETAPlusCyclingTime;
+      var parsedETAPlusWalkingTime;
       const coordinates = `${startStop};${endStop}`;
       const url = `https://api.mapbox.com/directions-matrix/v1/mapbox/walking/${coordinates}?sources=1&annotations=duration&access_token=${mapboxgl.accessToken}`;
       const url2 = `https://api.mapbox.com/directions-matrix/v1/mapbox/cycling/${coordinates}?sources=1&annotations=duration&access_token=${mapboxgl.accessToken}`;
@@ -323,50 +334,49 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
         var trip = ranking[x]
         var route = Constants.route_id_name[Constants.trip_id_route_id[String(trip.tripId)]]
         //const ETAobject = new Date(trip.eta)
-        const ETAobject = moment(trip.eta)
+        const ETAobject = moment(trip.eta * 1000)
+        //moment().epoch * 100
         const parsed = ETAobject.format('HH:mm:ss')
         
-        //Hever subtract the ETAs here !TODO!
         //const currentEpoch = Date.now()
         const currentEpoch = moment()
-        var ETAInMinutes = trip.eta.diff(currentEpoch, 'minutes')
-        alert("ETA")
-        alert(trip.eta)
-        alert(ETAobject)
-        alert(currentEpoch)
-        alert(ETAInMinutes)
-        //var ETAInMinutes = Math.floor((ETAobject - currentEpoch)/60000)
-        
-        //Uncertainty stuff
-        // alert(startStop)
-        // alert(endStop)
-        // alert(Constants.route_id_uncertainty[Constants.trip_id_route_id[String(trip.tripId)]])
-        var tripDurationTraffic = updateRoute(startStop, endStop, Constants.route_id_uncertainty[Constants.trip_id_route_id[String(trip.tripId)]])
+        var ETAInMinutes = ETAobject.diff(currentEpoch, 'minutes')
+        ETAPlusWalkingTime = currentEpoch.clone().add(walkingTime, 'minutes');
+        parsedETAPlusWalkingTime = ETAPlusWalkingTime.format('HH:mm:ss');
+        ETAPlusCyclingTime = currentEpoch.clone().add(cyclingTime, 'minutes');
+        parsedETAPlusCyclingTime = ETAPlusCyclingTime.format('HH:mm:ss');
 
-        // Compare tripDurationTraffic and subtracted ETAs
-        if (tripDurationTraffic > ETAInMinutes) {
-          setTrafficMessage("Traffic conditions are bad, delays are likely.");
-        } else {
-          setTrafficMessage("Traffic conditions are good, adjust accordingly.");
+        if(ETAInMinutes > 0) {
+          //Uncertainty stuff
+          // alert(startStop)
+          // alert(endStop)
+          // alert(Constants.route_id_uncertainty[Constants.trip_id_route_id[String(trip.tripId)]])
+          var tripDurationTraffic = updateRoute(startStop, endStop, Constants.route_id_uncertainty[Constants.trip_id_route_id[String(trip.tripId)]])
+          
+          // Compare tripDurationTraffic and subtracted ETAs
+          if (tripDurationTraffic > ETAInMinutes) {
+            setTrafficMessage("Traffic conditions are bad, delays are likely.");
+          } else {
+            setTrafficMessage("Traffic conditions are good, adjust accordingly.");
+          }
+
+          // Flag if walking is best
+          recommendWalking = (walkingTime < tripDurationTraffic && walkingTime < ETAInMinutes);
+
+          addRow.push({eta: parsed, route: route, etaInMinutes: `${ETAInMinutes} min`})
         }
-
-        // Flag if walking is best
-        recommendWalking = (walkingTime < tripDurationTraffic && walkingTime < ETAInMinutes);
-
-        addRow.push({eta: parsed, route: route, walkTime: closestStop.walkingTime})
       }
+
+      addRow.push({eta: parsedETAPlusCyclingTime, route: "Cycling", etaInMinutes: `${cyclingTime} min`})
 
       if (recommendWalking) {
-        addRow.unshift({eta: `${walkingTime} min`, route: "walking", walkTime: ""})
+        addRow.unshift({eta: parsedETAPlusWalkingTime, route: "Walking", etaInMinutes: `${walkingTime} min`})
       }
       else {
-        addRow.push({eta: `${walkingTime} min`, route: "walking", walkTime: ""})
+        addRow.push({eta: parsedETAPlusWalkingTime, route: "Walking", etaInMinutes: `${walkingTime} min`})
       }
-      addRow.push({eta: `${cyclingTime} min`, route: "cycling", walkTime: ""})
-      setRows(addRow)
-
-
-        
+      
+      setRows(addRow)  
 
     });
 
@@ -648,7 +658,6 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
 
             //Check if shuttle is in desired route
             if (tripId in Constants.trip_id_route_id) {
-              // HARDCODED NEED TO CHANGE TO ACTUAL TRIP IDs
               var coord = [
                 shuttle.vehicle.position.longitude,
                 shuttle.vehicle.position.latitude,
@@ -884,8 +893,8 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
             <TableHead>
               <TableRow>
                 <TableCell>ETA at destination</TableCell>
+                <TableCell align="right">ETA in minutes</TableCell>
                 <TableCell align="right">Route</TableCell>
-                <TableCell align="right">Walk time</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -898,10 +907,10 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
                     {row.eta}
                   </TableCell>
                   <TableCell align="right">{
-                    row.route
+                    row.etaInMinutes
                   }</TableCell>
                   <TableCell align="right">{
-                    row.walkTime
+                    row.route
                   }</TableCell>
                 </TableRow>
               ))}
@@ -909,6 +918,8 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
           </Table>
         </TableContainer>
         </div>
+
+        <div id="walkingTime"></div>
       </div>
     </div>
   );
