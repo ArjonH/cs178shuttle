@@ -30,6 +30,7 @@ export default function App() {
   // HEVER ADDED THIS THING
   const [userChoice, setUserChoice] = useState(""); // Default to SEC as start
   const userChoiceRef = useRef(userChoice);
+  const [trafficMessage, setTrafficMessage] = useState("");
 
   useEffect(() => {
     userChoiceRef.current = userChoice;
@@ -212,6 +213,7 @@ async function alertTotalETA(clickedLngLat) {
 async function rankTrips(startStop, endStop, allTripUpdates) {
   var etas = [];
   var foundStart;
+  var startStopArrival;
   for(let x in allTripUpdates) {
     var trip = allTripUpdates[x];
     foundStart = false;
@@ -224,10 +226,11 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
       //alert(stops.stopId)
       if(stops.stopId === startStop) {
         foundStart = true;
+        startStopArrival = stops.arrivalTime
         // alert("we found the start");
       }
       if((String(stops.stopId) === String(endStop)) && foundStart) {
-        etas.push({eta: stops.arrivalTime, tripId: trip.tripId})
+        etas.push({eta: stops.arrivalTime, startStopEta: startStopArrival, tripId: trip.tripId})
         // alert("we found the end");
         break;
       }
@@ -278,18 +281,52 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
         startStop = closestStop.coordinates
         ranking = await rankTrips(closestStop.stopId, "58343", allTrips)
       }
+      // Flag for if walking should be first
+      var recommendWalking = false;
+      var walkingTime;
+      var cyclingTime;
+      const coordinates = `${startStop};${endStop}`;
+      const url = `https://api.mapbox.com/directions-matrix/v1/mapbox/walking/${coordinates}?sources=1&annotations=duration&access_token=${mapboxgl.accessToken}`;
+      const url2 = `https://api.mapbox.com/directions-matrix/v1/mapbox/cycling/${coordinates}?sources=1&annotations=duration&access_token=${mapboxgl.accessToken}`;
 
-      
+      try {
+        const response = await fetch(url, { method: "GET" });
+        const data = await response.json();
+
+        if (data.durations && data.durations.length > 0 && data.durations[0].length > 1) {
+          walkingTime = Math.round(data.durations[0][0] / 60); // Get the walking time from the matrix
+
+        } else {
+          console.error("Failed to get walking time from Matrix API");
+        }
+      } catch (error) {
+        console.error("Error fetching walking time from Matrix API:", error);
+      }
+
+      try {
+        const response2 = await fetch(url2, { method: "GET" });
+        const data2 = await response2.json();
+
+        if (data2.durations && data2.durations.length > 0 && data2.durations[0].length > 1) {
+          cyclingTime = Math.round(data2.durations[0][0] / 60); // Get the cycling time from the matrix
+
+        } else {
+          console.error("Failed to get cycling time from Matrix API");
+        }
+      } catch (error) {
+        console.error("Error fetching cycling time from Matrix API:", error);
+      }
+
 
       var addRow = []
       for(let x in ranking) {
         var trip = ranking[x]
         var route = Constants.route_id_name[Constants.trip_id_route_id[String(trip.tripId)]]
         //const ETAobject = new Date(trip.eta)
-        const ETAobject= moment.unix(trip.eta)
+        const ETAobject = moment.unix(trip.eta)
         const parsed = ETAobject.format('HH:mm:ss')
-        //alert(parsed)
         
+        //Hever subtract the ETAs here !TODO!
         const currentEpoch = Date.now()
         var ETAInMinutes = Math.floor((ETAobject - currentEpoch)/60000)
         
@@ -297,11 +334,28 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
         alert(startStop)
         alert(endStop)
         alert(Constants.route_id_uncertainty[Constants.trip_id_route_id[String(trip.tripId)]])
-        updateRoute(startStop, endStop, Constants.route_id_uncertainty[Constants.trip_id_route_id[String(trip.tripId)]])
+        var tripDurationTraffic = updateRoute(startStop, endStop, Constants.route_id_uncertainty[Constants.trip_id_route_id[String(trip.tripId)]])
 
+        // Compare tripDurationTraffic and subtracted ETAs
+        if (tripDurationTraffic > ETAInMinutes) {
+          setTrafficMessage("Traffic conditions are bad, delays are likely.");
+        } else {
+          setTrafficMessage("Traffic conditions are good, adjust accordingly.");
+        }
 
-        addRow.push({eta: parsed, route: route, walkTime: closestStop.walkingTime})
+        // Flag if walking is best
+        recommendWalking = (walkingTime < tripDurationTraffic && walkingTime < ETAInMinutes);
+
+        addRow.push({eta: ETAInMinutes, route: route, walkTime: closestStop.walkingTime})
       }
+
+      if (recommendWalking) {
+        addRow.unshift({eta: `${walkingTime} min`, route: "walking", walkTime: ""})
+      }
+      else {
+        addRow.push({eta: `${walkingTime} min`, route: "walking", walkTime: ""})
+      }
+      addRow.push({eta: `${cyclingTime} min`, route: "cycling", walkTime: ""})
       setRows(addRow)
 
 
@@ -631,9 +685,9 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
     const routeCoordinates = Constants.dictRouteString[route]; // all coordinates of a route
     const startStopIndex = routeCoordinates.indexOf(startStop); // index of the start coord in the array
     const endStopIndex = routeCoordinates.indexOf(endStop); // index of the end coord in the array
-    alert("indexes")
-    alert(startStopIndex)
-    alert(endStopIndex)
+    //alert("indexes")
+    //alert(startStopIndex)
+    //alert(endStopIndex)
     var numCoordinates = endStopIndex - startStopIndex; // num of coords between start and stop coord
     const totalCoords = routeCoordinates.length;
     if (numCoordinates < 0) {
@@ -727,7 +781,7 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
       tripDuration
     } min.</strong></p>`;
 
-
+    return tripDurationTraffic;
     /*
             var newCoords = '' //List of coords
             var curIndex = startStopIndex
@@ -793,13 +847,7 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
       <div className="sidebar">
         Longitude: {lng} | Latitude: {lat} | Zoom: {zoom}
 
-        <div>
-          <input type="radio" id="secStart" name="secPosition" value="SECStart" onChange={() => {setUserChoice("SECStart")}} />
-          <label htmlFor="secStart">SEC as Start</label>
-          <input type="radio" id="secEnd" name="secPosition" value="SECEnd" onChange={() => setUserChoice("SECEnd")} />
-          <label htmlFor="secEnd">SEC as End</label>
-          
-        </div>
+        
 
       </div>
 
@@ -809,21 +857,19 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
       {/* Sidebar for info */}
       <div class="info-box">
         <p>
-          Draw your route using the draw tools on the right. To get the most
-          accurate route match, draw points at regular intervals.
+          Choose whether you want your start or destination stop to be the SEC. Then, click on the map to enter your other other stop.
         </p>
-        <Button
-          variant="outlined"
-          onClick={() => {
-            updateRoute(
-              "-71.12539,42.363328",
-              "-71.115594,42.372206",
-              "allstonLoop"
-            );
-          }}
-        >
-          Test update
-        </Button>
+        <div>
+          <input type="radio" id="secStart" name="secPosition" value="SECStart" onChange={() => {setUserChoice("SECStart")}} />
+          <label htmlFor="secStart">SEC as Start</label>
+          <input type="radio" id="secEnd" name="secPosition" value="SECEnd" onChange={() => setUserChoice("SECEnd")} />
+          <label htmlFor="secEnd">SEC as End</label>
+        </div>
+
+        <div>
+          <p>{trafficMessage}</p> {/* Display the traffic message here */}
+        </div>
+        
         <div id="directions"></div>
         <div id="tripRankings">
           <TableContainer component={Paper}>
