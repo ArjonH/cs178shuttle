@@ -323,12 +323,19 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
         var trip = ranking[x]
         var route = Constants.route_id_name[Constants.trip_id_route_id[String(trip.tripId)]]
         //const ETAobject = new Date(trip.eta)
-        const ETAobject = moment.unix(trip.eta)
+        const ETAobject = moment(trip.eta)
         const parsed = ETAobject.format('HH:mm:ss')
         
         //Hever subtract the ETAs here !TODO!
-        const currentEpoch = Date.now()
-        var ETAInMinutes = Math.floor((ETAobject - currentEpoch)/60000)
+        //const currentEpoch = Date.now()
+        const currentEpoch = moment()
+        var ETAInMinutes = trip.eta.diff(currentEpoch, 'minutes')
+        alert("ETA")
+        alert(trip.eta)
+        alert(ETAobject)
+        alert(currentEpoch)
+        alert(ETAInMinutes)
+        //var ETAInMinutes = Math.floor((ETAobject - currentEpoch)/60000)
         
         //Uncertainty stuff
         // alert(startStop)
@@ -346,7 +353,7 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
         // Flag if walking is best
         recommendWalking = (walkingTime < tripDurationTraffic && walkingTime < ETAInMinutes);
 
-        addRow.push({eta: ETAInMinutes, route: route, walkTime: closestStop.walkingTime})
+        addRow.push({eta: parsed, route: route, walkTime: closestStop.walkingTime})
       }
 
       if (recommendWalking) {
