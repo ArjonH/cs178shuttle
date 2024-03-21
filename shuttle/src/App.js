@@ -331,9 +331,9 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
         var ETAInMinutes = Math.floor((ETAobject - currentEpoch)/60000)
         
         //Uncertainty stuff
-        alert(startStop)
-        alert(endStop)
-        alert(Constants.route_id_uncertainty[Constants.trip_id_route_id[String(trip.tripId)]])
+        // alert(startStop)
+        // alert(endStop)
+        // alert(Constants.route_id_uncertainty[Constants.trip_id_route_id[String(trip.tripId)]])
         var tripDurationTraffic = updateRoute(startStop, endStop, Constants.route_id_uncertainty[Constants.trip_id_route_id[String(trip.tripId)]])
 
         // Compare tripDurationTraffic and subtracted ETAs
