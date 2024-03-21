@@ -243,8 +243,8 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
       }</p>`;
 
       //Add Marker for closest stop
-
-      map.current.addSource("recommendedShuttle", {
+      alert(closestStop.coordinatesFormatted)
+      map.current.addSource("closestStop", {
         type: "geojson",
         data: {
           type: "FeatureCollection",
@@ -258,17 +258,21 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
         },
       });
 
-      //Shows shuttles that are live but we don't recommend
+      //Highlights closest stop NOT WORKING RN
       map.current.addLayer({
-        id: "recommendedShuttle",
-        //type: "circle",
-        type: 'symbol',
-        source: "recommendedShuttle",
+        id: "closestStop",
+        type: "circle",
+        //type: 'symbol',
+        source: "closestStop",
+        paint: {
+          "circle-radius": 20,
+          "circle-color": "#FFA23A",
+        }, /*
         layout: {
           'icon-image': 'map-marker-svgrepo-com',
           //'icon-color': '#000000',
-          'icon-size': 0.3
-        }
+          'icon-size': 20
+        } */
       });
 
       var allTrips = await getUpdates();
@@ -348,9 +352,6 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
 
         if(ETAInMinutes > 0) {
           //Uncertainty stuff
-          // alert(startStop)
-          // alert(endStop)
-          // alert(Constants.route_id_uncertainty[Constants.trip_id_route_id[String(trip.tripId)]])
           var tripDurationTraffic = updateRoute(startStop, endStop, Constants.route_id_uncertainty[Constants.trip_id_route_id[String(trip.tripId)]])
           
           // Compare tripDurationTraffic and subtracted ETAs
