@@ -233,9 +233,9 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
           
           // Compare tripDurationTraffic and subtracted ETAs
           if (tripDurationTraffic > ETAInMinutes) {
-            setTrafficMessage("Traffic conditions are bad, delays are likely.");
+            setTrafficMessage("Traffic conditions are bad. Your shuttle may be up to 4 minutes late.");
           } else {
-            setTrafficMessage("Traffic conditions are good, adjust accordingly.");
+            setTrafficMessage("Traffic conditions are good. Your shuttle may arrive 1 to 2 minutes early.");
           }
 
           // Flag if walking is best
