@@ -218,14 +218,14 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
         var trip = ranking[x]
         var route = Constants.route_id_name[Constants.trip_id_route_id[String(trip.tripId)]]
         const ETAobject = moment(trip.eta * 1000)
-        const parsed = ETAobject.format('HH:mm:ss')
+        const parsed = ETAobject.format('HH:mm')
         
         const currentEpoch = moment()
         var ETAInMinutes = ETAobject.diff(currentEpoch, 'minutes')
         ETAPlusWalkingTime = currentEpoch.clone().add(walkingTime, 'minutes');
-        parsedETAPlusWalkingTime = ETAPlusWalkingTime.format('HH:mm:ss');
+        parsedETAPlusWalkingTime = ETAPlusWalkingTime.format('HH:mm');
         ETAPlusCyclingTime = currentEpoch.clone().add(cyclingTime, 'minutes');
-        parsedETAPlusCyclingTime = ETAPlusCyclingTime.format('HH:mm:ss');
+        parsedETAPlusCyclingTime = ETAPlusCyclingTime.format('HH:mm');
 
         if(ETAInMinutes > 0) {
           //Uncertainty stuff
@@ -610,7 +610,7 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
       {/* Sidebar for info */}
       <div class="info-box">
         <p>
-          Choose whether you want your start or destination stop to be the SEC. Then, click on the map to enter your other other stop.
+          Choose whether you want your start or destination stop to be the SEC. Then, click on the map to enter your other stop.
         </p>
         <div>
           <input type="radio" id="secStart" name="secPosition" value="SECStart" onChange={() => {setUserChoice("SECStart")}} />
