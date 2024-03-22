@@ -25,7 +25,6 @@ export default function App() {
   //for rankings
   const [rows, setRows] = useState([{eta: "", route: "", etaInMinutes: ""}]);
 
-  // HEVER ADDED THIS THING
   const [userChoice, setUserChoice] = useState(""); // Default to SEC as start
   const userChoiceRef = useRef(userChoice);
   const [trafficMessage, setTrafficMessage] = useState("");
@@ -244,17 +243,28 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
 
       //Add Marker for closest stop
       alert(closestStop.coordinatesFormatted)
-      map.current.addSource("closestStop", {
+      /*map.current.addSource("closestStop", {
         type: "geojson",
         data: {
           type: "FeatureCollection",
-          features: {
+          features: [{
             'type': 'Feature',
             'geometry': {
                 'type': 'Point',
                 'coordinates': closestStop.coordinatesFormatted 
             }
+        }]
         },
+      });*/
+
+      map.current.addSource("closestStop", {
+        type: "geojson",
+        data: {
+          type: "Feature",
+          geometry: {
+            'type': 'Point',
+            'coordinates': closestStop.coordinatesFormatted 
+          },
         },
       });
 
@@ -292,6 +302,11 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
         startStop = closestStop.coordinates
         ranking = await rankTrips(closestStop.stopId, "58343", allTrips)
       }
+      if (ranking.length > 0) {
+        //setSelectedShuttle(ranking[0].tripId)
+        setSelectedShuttle("661316")
+      }
+
       // Flag for if walking should be first
       var recommendWalking = false;
       var walkingTime;
@@ -356,9 +371,9 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
           
           // Compare tripDurationTraffic and subtracted ETAs
           if (tripDurationTraffic > ETAInMinutes) {
-            setTrafficMessage("Traffic conditions are bad, delays are likely.");
+            setTrafficMessage("Traffic conditions are bad. The shuttle may arrive up to 4 minutes late.");
           } else {
-            setTrafficMessage("Traffic conditions are good, adjust accordingly.");
+            setTrafficMessage("Traffic conditions are good. The shuttle may arrive 1 to 2 minutes early");
           }
 
           // Flag if walking is best
@@ -567,72 +582,10 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
         // To add a new image to the style at runtime see
         // https://docs.mapbox.com/mapbox-gl-js/example/add-image/
           //'icon-image': 'za-provincial-2', //change to actual icon
-          'icon-image': 'noun-bus-31771',
-          'icon-color': '#FFFFFF',
+          'icon-image': 'green-bus',
           'icon-size': 0.3
         }
       });
-      /*
-      // Load an image from an external URL.
-      map.current.loadImage(
-        "https://docs.mapbox.com/mapbox-gl-js/assets/cat.png",
-        (error, image) => {
-          if (error) throw error;
-
-          // Add the image to the map style.
-          map.current.addImage("shuttleImg", image);
-
-          // Add the shuttle location as a source.
-          map.current.addSource("shuttle", {
-            type: "geojson",
-            data: geojson,
-          });
-
-          //Shows shuttles that are live but we don't recommend
-          map.current.addLayer({
-            id: "shuttle",
-            type: "circle",
-            //type: 'symbol',
-            source: "shuttle",
-            paint: {
-              "circle-radius": 2,
-              "circle-color": "#FFFFFF",
-            }, 
-            filter: ["!=", "id", selectedShuttle], //HARDCODED //Filter to only show particular features
-            layout: {
-            // This icon is a part of the Mapbox Streets style.
-            // To view all images available in a Mapbox style, open
-            // the style in Mapbox Studio and click the "Images" tab.
-            // To add a new image to the style at runtime see
-            // https://docs.mapbox.com/mapbox-gl-js/example/add-image/
-              'icon-image': 'za-provincial-2', //change to actual icon,
-              'icon-color': '#FFFFFF',
-              'icon-size': 0.3
-            }
-          });
-
-          // Shows shuttle that we recommend user taking
-          map.current.addLayer({
-            id: "shuttleHighlighted",
-            //type: "circle",
-            type: 'symbol',
-            source: "shuttle",
-            paint: {
-              "circle-radius": 30,
-              "circle-color": "#F32FFF",
-            },
-            filter: ["==", "id", selectedShuttle], //HARDCODED CHANGE ID VAL To an updated state val
-            'layout': {
-            // This icon is a part of the Mapbox Streets style.
-            // To view all images available in a Mapbox style, open
-            // the style in Mapbox Studio and click the "Images" tab.
-            // To add a new image to the style at runtime see
-            // https://docs.mapbox.com/mapbox-gl-js/example/add-image/
-              'icon-image': 'za-provincial-2' //change to actual icon
-            }
-          });
-        }
-      );*/
 
       // Update the source from the API every 2 seconds.
       const updateSource = setInterval(async () => {
