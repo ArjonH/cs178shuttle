@@ -12,8 +12,6 @@ import moment from "moment";
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoicHJpbi1wIiwiYSI6ImNsdDZvbDRsdjA0cGQycXBwbDRudmw4MHYifQ.QUoBtqyiYpgWTCshcAvbkg"; //own draft style
-  //"pk.eyJ1IjoicHJpbi1wIiwiYSI6ImNsdDZvbDRsdjA0cGQycXBwbDRudmw4MHYifQ.QUoBtqyiYpgWTCshcAvbkg"; // own style
-  //"pk.eyJ1IjoicHJpbi1wIiwiYSI6ImNsdDZwZGFpZDBlM2syanA2dmhlbnJwdTMifQ.bhuhjb9c4DrY7m8pOScJpw"; //default style
 
 export default function App() {
   const mapContainer = useRef(null);
@@ -25,22 +23,16 @@ export default function App() {
   //for rankings
   const [rows, setRows] = useState([{eta: "", route: "", etaInMinutes: ""}]);
 
-  // HEVER ADDED THIS THING
-  const [userChoice, setUserChoice] = useState(""); // Default to SEC as start
+  const [userChoice, setUserChoice] = useState(""); // Whether user wants to go to or come from SEC
   const userChoiceRef = useRef(userChoice);
-  const [trafficMessage, setTrafficMessage] = useState("");
+  const [trafficMessage, setTrafficMessage] = useState(""); //Indicates traffic conditions (communicates uncertainty)
 
   useEffect(() => {
     userChoiceRef.current = userChoice;
   }, [userChoice]);
 
-  const [fromSEC, getFromSec] = useState(true) //Hardcoded, change to ""
-
-  //For traffic data (uncertainty)
-  const [trafficConditions, setTraffic] = useState(null);
-
   //For selected route
-  const [selectedShuttle, setSelectedShuttle] = useState("") //Hardcoded, change to ""
+  const [selectedShuttle, setSelectedShuttle] = useState("")
 
   async function getUpdates() {
     try {
@@ -63,76 +55,12 @@ export default function App() {
     }
   }
 
-  // // Inputs: startStop coordinate (format "long,lat"), endStop coordinate, route (name, String)
-  // async function calculateETA(startStop, endStop, route) {
-
-  //   // Set the profile
-  //   const profile = "driving-traffic"; //times informed by traffic data
-
-  //   // Get the coordinates of the route using the inputs
-  //   const routeCoordinates = Constants.dictRouteString[route]; // all coordinates of a route
-  //   const startStopIndex = routeCoordinates.indexOf(startStop); // index of the start coord in the array
-  //   const endStopIndex = routeCoordinates.indexOf(endStop); // index of the end coord in the array
-  //   var numCoordinates = endStopIndex - startStopIndex; // num of coords between start and stop coord
-  //   const totalCoords = routeCoordinates.length;
-  //   if (numCoordinates < 0) {
-  //     numCoordinates = totalCoords - startStopIndex + (endStopIndex + 1);
-  //   }
-
-  //   var newCoords = ""; //List of coords
-  //   var curIndex = startStopIndex;
-  //   var curCoord;
-  //   var count = numCoordinates; // number of coordinates added to list for API call
-  //   var skipCoords = 1;
-  //   if (count > 100) {
-  //     //100 is the max number of coords allowed in API call
-  //     count = 100; // number of coordinates added to list
-  //     //skipCoords is the number of coords we'll skip (i.e. not include in the API call)
-  //     skipCoords = Math.ceil(numCoordinates / 100); //TEST if about correct number
-  //   }
-
-  //   // Looping through to get coordinates for API call and formatting them
-  //   var radius = ""; //For API call, same number of radii as coordinates
-
-  //   //alert(count)
-  //   for (let i = 0; i < count; i++) {
-  //     curCoord = routeCoordinates[curIndex];
-  //     if (i === count-1){
-  //       newCoords =
-  //         newCoords + curCoord;
-
-  //       // Set the radius for each coordinate pair to 10 meters
-  //       radius = radius + "10";
-  //     } else {
-  //       newCoords =
-  //         newCoords + curCoord + ";";
-        
-  //         // Set the radius for each coordinate pair to 10 meters
-  //       radius = radius + "10;";
-  //     } 
-      
-  //     curIndex = curIndex + skipCoords;
-  //     if (curIndex >= totalCoords) {
-  //       curIndex = 0;
-  //     }
-
-     
-  //   }
-  //   var tripDurationTraffic = await getMatch(newCoords, radius, profile); //Calls function to call API
-  //   var tripDuration = await getMatch(newCoords, radius, "driving"); //Calls function to call API (car without traffic)
-
-  //   return tripDurationTraffic, tripDuration
-  // }
-
-//Finds the closest stop to input coordinate //WORKS
+//Finds the closest stop to input coordinate 
 async function findClosestStop(clickedLngLat) {
-  
-  // alert("testing user choice")
-  // alert(userChoice)
-  //alert("test")
+
   let shortestOverallTime = Infinity;
   let closestStopName = "";
-  let closestStopPosition = ""; // Ensure this variable is defined in the correct scope
+  let closestStopPosition = "";
 
   // Convert stop_pos_name keys to an array suitable for the Matrix API
   const stops = Object.keys(Constants.stop_pos_name).map(coord => encodeURIComponent(coord)).join(';');
@@ -144,25 +72,21 @@ async function findClosestStop(clickedLngLat) {
     const data = await response.json();
   
     if (data.code !== "Ok") {
-      //alert("bad")
       console.error("Error fetching data from Mapbox Matrix API:", data.message);
       return;
     }
-  
     const durations = data.durations[0];
+
     // Find the index of the shortest duration, excluding the first element
     const shortestDurationIndex = durations.slice(1).findIndex(duration => duration === Math.min(...durations.slice(1))) + 1;
     const shortestDuration = durations[shortestDurationIndex];
-    
-    //alert(shortestDuration)
-  
+      
     if (shortestDuration < shortestOverallTime) {
       shortestOverallTime = shortestDuration; // Update shortestOverallTime with the new shortest duration
       closestStopPosition = Object.keys(Constants.stop_pos_name)[shortestDurationIndex - 1]; // Adjust index for the actual position in the original array
       closestStopName = Constants.stop_pos_name[closestStopPosition];
     }
   } catch (error) {
-    //alert("error")
     console.error("Failed to find the closest stop:", error);
   }
   
@@ -186,31 +110,25 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
   var etas = [];
   var foundStart;
   var startStopArrival;
+
+  //searches for start stop and end stop in the list of all stops for a shuttle
   for(let x in allTripUpdates) {
     var trip = allTripUpdates[x];
     foundStart = false;
-    //alert("trip")
-    // alert(trip.tripId)
     for(let y in trip.stopTimeUpdates){
-      //alert("new tripid")
       
       var stops = trip.stopTimeUpdates[y];
-      //alert(stops.stopId)
       if(stops.stopId === startStop) {
         foundStart = true;
         startStopArrival = stops.arrivalTime
-        // alert("we found the start");
       }
       if((String(stops.stopId) === String(endStop)) && foundStart) {
         etas.push({eta: stops.arrivalTime, startStopEta: startStopArrival, tripId: trip.tripId})
-        // alert("we found the end");
         break;
       }
     }
   }
-  
-  //alert(etas)
-  //sort etas
+
   etas.sort(function(a, b) {
     return a.arrivalTime > b.arrivalTime;
   });
@@ -223,10 +141,7 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
     if (map.current) return; // initialize map only once
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
-      style: "mapbox://styles/prin-p/clt7k1h6z001201p3eufhezul/draft", // draft map
-      //style: "mapbox://styles/prin-p/clt7k1h6z001201p3eufhezul", //published changes
-      //style: "mapbox://styles/mapbox/navigation-night-v1", //like 'mapbox://styles/mapbox/navigation-day-v1'
-      //this could also be good, very minimalistic but kinda hurts eyes mapbox://styles/mapbox/light-v11
+      style: "mapbox://styles/prin-p/clt7k1h6z001201p3eufhezul/draft",
       center: [lng, lat],
       zoom: zoom,
     });
@@ -235,56 +150,20 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
     map.current.on('click', async (e) => {
       const clickedLngLat = e.lngLat;
       var closestStop = await findClosestStop(clickedLngLat);
-      //alert(closestStop)
+
       // Target the sidebar to add the instructions
       const walkTimeHTML = document.getElementById("walkingTime");
       walkTimeHTML.innerHTML = `<p>Walk time to closest stop: ${
         closestStop.walkingTime
       }</p>`;
 
-      //Add Marker for closest stop
-      alert(closestStop.coordinatesFormatted)
-      map.current.addSource("closestStop", {
-        type: "geojson",
-        data: {
-          type: "FeatureCollection",
-          features: {
-            'type': 'Feature',
-            'geometry': {
-                'type': 'Point',
-                'coordinates': closestStop.coordinatesFormatted 
-            }
-        },
-        },
-      });
-
-      //Highlights closest stop NOT WORKING RN
-      map.current.addLayer({
-        id: "closestStop",
-        type: "circle",
-        //type: 'symbol',
-        source: "closestStop",
-        paint: {
-          "circle-radius": 20,
-          "circle-color": "#FFA23A",
-        }, /*
-        layout: {
-          'icon-image': 'map-marker-svgrepo-com',
-          //'icon-color': '#000000',
-          'icon-size': 20
-        } */
-      });
-
       var allTrips = await getUpdates();
       var ranking;
-      // alert(userChoiceRef.current);
       var startStop;
       var endStop;
       if (userChoiceRef.current === 'SECStart'){
         startStop = "-71.125392617,42.363328644"
         endStop = closestStop.coordinates
-        //alert("setting end stop")
-        //alert(endStop)
         ranking = await rankTrips("58343", closestStop.stopId, allTrips)
       }
       else {
@@ -292,6 +171,7 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
         startStop = closestStop.coordinates
         ranking = await rankTrips(closestStop.stopId, "58343", allTrips)
       }
+
       // Flag for if walking should be first
       var recommendWalking = false;
       var walkingTime;
@@ -337,12 +217,9 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
       for(let x in ranking) {
         var trip = ranking[x]
         var route = Constants.route_id_name[Constants.trip_id_route_id[String(trip.tripId)]]
-        //const ETAobject = new Date(trip.eta)
         const ETAobject = moment(trip.eta * 1000)
-        //moment().epoch * 100
         const parsed = ETAobject.format('HH:mm:ss')
         
-        //const currentEpoch = Date.now()
         const currentEpoch = moment()
         var ETAInMinutes = ETAobject.diff(currentEpoch, 'minutes')
         ETAPlusWalkingTime = currentEpoch.clone().add(walkingTime, 'minutes');
@@ -391,7 +268,6 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
     map.current.on("load", async () => {
       // Get the initial location of the shuttle.
       const geojson = await getLocation();
-      //const routeCoordinates = await getRouteCoordinates();
 
       // Route plotting - different sources and layers for each route so it can be different colors
       map.current.addSource("routeExpress", {
@@ -534,105 +410,16 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
         data: geojson,
       });
 
-      //Shows shuttles that are live but we don't recommend
+      //Shows shuttles that are live 
       map.current.addLayer({
         id: "shuttle",
-        //type: "circle",
         type: 'symbol',
         source: "shuttle",
-        filter: ["!=", "id", selectedShuttle], //HARDCODED //Filter to only show particular features
         layout: {
-        // This icon is a part of the Mapbox Streets style.
-        // To view all images available in a Mapbox style, open
-        // the style in Mapbox Studio and click the "Images" tab.
-        // To add a new image to the style at runtime see
-        // https://docs.mapbox.com/mapbox-gl-js/example/add-image/
-          //'icon-image': 'za-provincial-2', //change to actual icon,
           'icon-image': 'noun-bus-31771',
-          //'icon-color': '#000000',
           'icon-size': 0.3
         }
       });
-
-      // Shows shuttle that we recommend user taking
-      map.current.addLayer({
-        id: "shuttleHighlighted",
-        type: 'symbol',
-        source: "shuttle",
-        filter: ["==", "id", selectedShuttle], //HARDCODED CHANGE ID VAL To an updated state val
-        'layout': {
-        // This icon is a part of the Mapbox Streets style.
-        // To view all images available in a Mapbox style, open
-        // the style in Mapbox Studio and click the "Images" tab.
-        // To add a new image to the style at runtime see
-        // https://docs.mapbox.com/mapbox-gl-js/example/add-image/
-          //'icon-image': 'za-provincial-2', //change to actual icon
-          'icon-image': 'noun-bus-31771',
-          'icon-color': '#FFFFFF',
-          'icon-size': 0.3
-        }
-      });
-      /*
-      // Load an image from an external URL.
-      map.current.loadImage(
-        "https://docs.mapbox.com/mapbox-gl-js/assets/cat.png",
-        (error, image) => {
-          if (error) throw error;
-
-          // Add the image to the map style.
-          map.current.addImage("shuttleImg", image);
-
-          // Add the shuttle location as a source.
-          map.current.addSource("shuttle", {
-            type: "geojson",
-            data: geojson,
-          });
-
-          //Shows shuttles that are live but we don't recommend
-          map.current.addLayer({
-            id: "shuttle",
-            type: "circle",
-            //type: 'symbol',
-            source: "shuttle",
-            paint: {
-              "circle-radius": 2,
-              "circle-color": "#FFFFFF",
-            }, 
-            filter: ["!=", "id", selectedShuttle], //HARDCODED //Filter to only show particular features
-            layout: {
-            // This icon is a part of the Mapbox Streets style.
-            // To view all images available in a Mapbox style, open
-            // the style in Mapbox Studio and click the "Images" tab.
-            // To add a new image to the style at runtime see
-            // https://docs.mapbox.com/mapbox-gl-js/example/add-image/
-              'icon-image': 'za-provincial-2', //change to actual icon,
-              'icon-color': '#FFFFFF',
-              'icon-size': 0.3
-            }
-          });
-
-          // Shows shuttle that we recommend user taking
-          map.current.addLayer({
-            id: "shuttleHighlighted",
-            //type: "circle",
-            type: 'symbol',
-            source: "shuttle",
-            paint: {
-              "circle-radius": 30,
-              "circle-color": "#F32FFF",
-            },
-            filter: ["==", "id", selectedShuttle], //HARDCODED CHANGE ID VAL To an updated state val
-            'layout': {
-            // This icon is a part of the Mapbox Streets style.
-            // To view all images available in a Mapbox style, open
-            // the style in Mapbox Studio and click the "Images" tab.
-            // To add a new image to the style at runtime see
-            // https://docs.mapbox.com/mapbox-gl-js/example/add-image/
-              'icon-image': 'za-provincial-2' //change to actual icon
-            }
-          });
-        }
-      );*/
 
       // Update the source from the API every 2 seconds.
       const updateSource = setInterval(async () => {
@@ -702,21 +489,13 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
     const routeCoordinates = Constants.dictRouteString[route]; // all coordinates of a route
     const startStopIndex = routeCoordinates.indexOf(startStop); // index of the start coord in the array
     const endStopIndex = routeCoordinates.indexOf(endStop); // index of the end coord in the array
-    //alert("indexes")
-    //alert(startStopIndex)
-    //alert(endStopIndex)
     var numCoordinates = endStopIndex - startStopIndex; // num of coords between start and stop coord
     const totalCoords = routeCoordinates.length;
     if (numCoordinates < 0) {
       numCoordinates = totalCoords - startStopIndex + (endStopIndex + 1);
     }
-
-    //For testing purposes only
-    //alert(startStopIndex)
-    //alert(endStopIndex)
-    //alert(totalCoords)
     var testArray = Constants.dictRoute[route].slice(startStopIndex, endStopIndex)
-    //alert(testArray)
+    
     // Add a new layer to the map - shows route that the user will travel in the shuttle
     map.current.addLayer({
       id: 'routeTest2',
@@ -742,7 +521,6 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
         'line-opacity': 0.8
       }
     });
-    //END of testing purposes
 
     var newCoords = ""; //List of coords
     var curIndex = startStopIndex;
@@ -784,50 +562,11 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
      
     }
 
-    //alert(newCoords)
-    //alert(radius)
     var tripDurationTraffic = await getMatch(newCoords, radius, profile); //Calls function to call API
     var tripDuration = await getMatch(newCoords, radius, "driving"); //Calls function to call API (car without traffic)
 
-    // Target the sidebar to add the instructions
-    const directions = document.getElementById("directions");
-
-    directions.innerHTML = `<p><strong>Trip duration w/ traffic: ${
-      tripDurationTraffic
-    }, Trip duration wo/ traffic: ${
-      tripDuration
-    } min.</strong></p>`;
-
     return tripDurationTraffic;
-    /*
-            var newCoords = '' //List of coords
-            var curIndex = startStopIndex
-            var curCoord;
-            if (numCoordinates > 100){ //100 is the max number of coords allowed in API call
-                //skipCoords is the number of coords we'll skip (not include in the API call)
-                var skipCoords = Math.ceil(numCoordinates / 100); //TEST if about correct number
 
-                // Looping through to get coordinates for API call
-                for (let i = 0; i < 100; i++) {
-                    curCoord = routeCoordinates[curCoord]
-                    newCoords = newCoords + curCoord[0].toString() + ',' + curCoord[1].toString() + ';'
-                    curIndex = curIndex + skipCoords
-                    if (curIndex >=totalCoords){
-                        curIndex = 0
-                    }
-                }
-            } else {
-                // Looping through to get coordinates for API call and formatting them
-                for (let i = 0; i < numCoordinates; i++) {
-                    curCoord = routeCoordinates[curCoord]
-                    newCoords = newCoords + curCoord[0].toString() + ',' + curCoord[1].toString() + ';'
-                    curIndex +=1
-                    if (curIndex >=totalCoords){
-                        curIndex = 0
-                    }
-                }
-            }
-            */
   }
 
   // Make a Map Matching request
@@ -863,9 +602,6 @@ async function rankTrips(startStop, endStop, allTripUpdates) {
       {/* Displays center coordinates of map */}
       <div className="sidebar">
         Longitude: {lng} | Latitude: {lat} | Zoom: {zoom}
-
-        
-
       </div>
 
       {/* Displays map */}
